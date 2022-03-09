@@ -7,20 +7,33 @@ public class ButtonControl : MonoBehaviour
 
     public Rigidbody2D rb;
 
-    public float movementSpeed = 5f;
-    Vector2 movement;
-    // Start is called before the first frame update
-    public void buttonAction(){
+    private float movementSpeed = 5f;
 
-        
+    
 
+    public void RightDown(){
+        rb.velocity = Vector2.right * movementSpeed;
+    }
 
-        movement.Set(1, 0);
+    public void TopDown(){
+        rb.velocity = Vector2.up * movementSpeed;
+    }
+
+    public void DownDown(){
+        rb.velocity = Vector2.down * movementSpeed;
+    }
+
+    public void LeftDown(){
+        rb.velocity = Vector2.left * movementSpeed;
+    }
+
+    public void StopMoving(){
+        rb.velocity = Vector2.zero;
     }
 
 
     void FixedUpdate()
     {
-        rb.MovePosition(rb.position + movement * movementSpeed * Time.fixedDeltaTime);
+       // rb.MovePosition(rb.position + movement * movementSpeed * Time.fixedDeltaTime);
     }
 }
