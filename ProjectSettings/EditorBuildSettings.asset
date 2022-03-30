@@ -5,8 +5,14 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/Scenes/HouseGroundFloor.unity
+    guid: d86747bfe912f7c45b8caf02f8e6e3cc
+  - enabled: 1
+    path: Assets/Scenes/Apartment.unity
+    guid: 216f9b5abfd016242a4c35f00b0c37e2
+  - enabled: 1
+    path: Assets/Scenes/HouseBasement.unity
+    guid: 8d02f36054a0cac41b24e16091f275c5
   m_configObjects:
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: 54a89e84388854ba78054c1c851b861f, type: 2}
