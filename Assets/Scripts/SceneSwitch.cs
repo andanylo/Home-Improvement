@@ -28,6 +28,10 @@ public class SceneSwitch : MonoBehaviour
         sceneID = SceneManager.GetActiveScene().buildIndex;
     }
 
+    //method to present task cards
+    public void SelectTaskCard(){
+        SceneManager.LoadScene(4, LoadSceneMode.Additive);
+    }
     //method to change from ground floor to basement and vice versa in house level
     void OnTriggerEnter2D(Collider2D collision)
     {
