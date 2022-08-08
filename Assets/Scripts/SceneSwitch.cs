@@ -7,9 +7,19 @@ public class SceneSwitch : MonoBehaviour
 {
     private int sceneID;
 
+    private GameObject taskMenu;
+
+    
+
     // Start is called before the first frame update
     void Start()
     {
+        GameObject parent = GameObject.Find("/Canvas");
+        taskMenu = FindChildInParent.FindObject(parent, "TaskMenu");
+
+        taskMenu.SetActive(false);
+        //taskMenu = GameObject.Find("Canvas/TaskMenu").GetComponent<Renderer>().enabled;
+        //GameObject.Find("Canvas/TaskMenu").GetComponent<Renderer>().enabled = false;
         sceneID = SceneManager.GetActiveScene().buildIndex;
     }
 
@@ -30,7 +40,10 @@ public class SceneSwitch : MonoBehaviour
 
     //method to present task cards
     public void SelectTaskCard(){
-        SceneManager.LoadScene(4, LoadSceneMode.Additive);
+        GameObject parent = GameObject.Find("/Canvas");
+        taskMenu = parent.FindObject("TaskMenu");
+        taskMenu.SetActive(true);
+        //GameObject.Find("Canvas/TaskMenu").GetComponent<Renderer>().enabled = false;
     }
     //method to change from ground floor to basement and vice versa in house level
     void OnTriggerEnter2D(Collider2D collision)

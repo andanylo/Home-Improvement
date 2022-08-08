@@ -8,6 +8,8 @@ public class PlayerScript : MonoBehaviour
     public Rigidbody2D player;
     public GameObject showTaskBtn;
 
+    private GameObject taskMenu;
+
     bool isCloseToAnyOfTheTask = false;
     // Start is called before the first frame update
     void Start()
