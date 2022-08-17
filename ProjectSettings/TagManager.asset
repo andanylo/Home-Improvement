@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Task
   - TaskButton
+  - Header
   layers:
   - Default
   - TransparentFX

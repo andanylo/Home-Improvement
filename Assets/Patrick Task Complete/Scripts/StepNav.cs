@@ -18,12 +18,9 @@ public class StepNav : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("INDEX :" + index);
 
         if (index >= steps.Length - 1){
             index = steps.Length -1;
-
-            Debug.Log("steps.Length -1 :" + (steps.Length -1));
         }
 
         if(index < 0){
@@ -45,7 +42,7 @@ public class StepNav : MonoBehaviour
             steps[i].gameObject.SetActive(false);
             steps[index].gameObject.SetActive(true);
         }
-        Debug.Log("after Next INDEX :" + index);
+        
     }
 
     public void Back()
@@ -57,6 +54,6 @@ public class StepNav : MonoBehaviour
             steps[i].gameObject.SetActive(false);
             steps[index].gameObject.SetActive(true);
         }
-        Debug.Log("after Back INDEX :" + index);
+        
     }
 }

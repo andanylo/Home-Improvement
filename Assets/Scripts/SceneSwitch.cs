@@ -31,6 +31,9 @@ public class SceneSwitch : MonoBehaviour
         sceneID = SceneManager.GetActiveScene().buildIndex;
     }
 
+
+
+
     public void SelectHouse()
     {
         SceneManager.LoadScene("HouseGroundFloor");
@@ -43,7 +46,21 @@ public class SceneSwitch : MonoBehaviour
         GameObject parent = GameObject.Find("/Canvas");
         taskMenu = parent.FindObject("TaskMenu");
         taskMenu.SetActive(true);
-        //GameObject.Find("Canvas/TaskMenu").GetComponent<Renderer>().enabled = false;
+
+        GameObject player = GameObject.Find("Player");
+        if(player != null){
+            PlayerScript playerScipt = (PlayerScript) player.GetComponent(typeof(PlayerScript));
+            GameObject taskObject = playerScipt.getClosestTask();
+            Task taskScipt = (Task) taskObject.GetComponent(typeof(Task));
+            //Get task object
+            MaintenanceTask task = taskScipt.maintenanceTask;
+
+            TaskMenu menuScript = (TaskMenu) taskMenu.GetComponent(typeof(TaskMenu));
+            menuScript.changeHeader(task.title);
+
+        }
+
+        
     }
     //method to change from ground floor to basement and vice versa in house level
     void OnTriggerEnter2D(Collider2D collision)
