@@ -29,16 +29,10 @@ public class ButtonControl : MonoBehaviour
 
     public void flipIfNeeded(Vector2 offset){
         Vector2 currentScale = rb.transform.localScale;
-
-        if(offset.x > 0 && currentScale.x < 0){
-            currentScale.x = 1;
-            rb.transform.localScale = currentScale;
-            Debug.Log("Flip right");
-        }
-        else if (offset.x < 0 && currentScale.x > 0){
-            currentScale.x = -1;
-            rb.transform.localScale = currentScale;
-            Debug.Log("Flip left");
+        //Flip right or left
+        if((offset.x > 0 && currentScale.x < 0) || (offset.x < 0 && currentScale.x > 0)){
+            currentScale.x = -1 * currentScale.x;
+            rb.transform.localScale =  currentScale;
         }
     }
 

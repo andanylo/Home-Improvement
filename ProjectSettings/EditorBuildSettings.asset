@@ -21,4 +21,6 @@ EditorBuildSettings:
     path: Assets/Patrick Task Complete/Task Cards/Capstone.unity
     guid: bf8ac416416d4ef43b5ac43c9e3fafb8
   m_configObjects:
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 14c73dd7a371d411eb6643ccb162f9b7, type: 2}
+    com.unity.adaptiveperformance.samsung.android.provider_settings: {fileID: 11400000, guid: bda55a81b202b4c8c827bac02107ac6c, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: 54a89e84388854ba78054c1c851b861f, type: 2}
