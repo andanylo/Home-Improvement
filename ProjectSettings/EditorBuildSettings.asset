@@ -5,9 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/HomeSelect.unity
     guid: 9c01e14070552e34d86fb1cace63b53f
+  - enabled: 1
+    path: Assets/Scenes/MainScene.unity
+    guid: d201aa575e1704a858659afde4518bda
   - enabled: 1
     path: Assets/Scenes/Apartment.unity
     guid: 216f9b5abfd016242a4c35f00b0c37e2
@@ -17,7 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/HouseBasement.unity
     guid: 8d02f36054a0cac41b24e16091f275c5
-  - enabled: 1
+  - enabled: 0
     path: Assets/Patrick Task Complete/Task Cards/Capstone.unity
     guid: bf8ac416416d4ef43b5ac43c9e3fafb8
   m_configObjects:
