@@ -4,8 +4,8 @@ using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace FlutterUnityIntegration
-{
+// namespace FlutterUnityIntegration
+// {
     public class MessageHandler
     {
         public int id;
@@ -159,4 +159,4 @@ namespace FlutterUnityIntegration
             OnFlutterMessage?.Invoke(handler);
         }
     }
-}
+//}

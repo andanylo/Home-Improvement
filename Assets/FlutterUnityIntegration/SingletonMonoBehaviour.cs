@@ -1,8 +1,6 @@
 ﻿using System;
 using UnityEngine;
 
-namespace FlutterUnityIntegration
-{
     public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : MonoBehaviour
     {
         private static readonly Lazy<T> LazyInstance = new Lazy<T>(CreateSingleton);
@@ -17,4 +15,3 @@ namespace FlutterUnityIntegration
             return instance;
         }
     }
-}

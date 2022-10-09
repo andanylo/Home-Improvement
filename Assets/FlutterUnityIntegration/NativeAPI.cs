@@ -1,8 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using UnityEngine.SceneManagement;
 
-namespace FlutterUnityIntegration
-{
+
     public class NativeAPI
     {
 #if UNITY_IOS && !UNITY_EDITOR
@@ -113,4 +112,3 @@ namespace FlutterUnityIntegration
 #endif
         }
     }
-}
