@@ -24,10 +24,10 @@ public class EditFurniture : MonoBehaviour
 
     
     public GameObject furniture;
+    public GameObject player;
 
     public CinemachineVirtualCamera virtualCamera;
 
-    private Transform previousCameraFollowing;
 
     //Add a new furniture to canvas
      public void addNewFurniture(string furnitureJson){
@@ -39,7 +39,7 @@ public class EditFurniture : MonoBehaviour
       
         furniture.SetActive(true);
 
-        previousCameraFollowing = virtualCamera.m_Follow;
+
 
         virtualCamera.m_Follow = furniture.transform;
         this.currentFurniture = editFurniture;
@@ -58,7 +58,7 @@ public class EditFurniture : MonoBehaviour
                 furnitureData.furnitureID = currentFurniture.id;
             }
             furnitureData.pos = furniture.transform.position;
-            furnitureData.rot = new Vector3(0f, 0f, currentFurnitureRotation);
+            furnitureData.rot = new Vector3(0f, 0f, furniture.transform.eulerAngles.z);
 
             return furnitureData;
         }
@@ -72,7 +72,7 @@ public class EditFurniture : MonoBehaviour
     public void cancelFurnitureEditing(string message){
     
         furniture.SetActive(false);
-        virtualCamera.m_Follow = previousCameraFollowing;
+        virtualCamera.m_Follow = player.transform;
         currentFurniture = null;
         currentFurnitureRotation = 0f;
     }
@@ -146,6 +146,7 @@ public class EditFurniture : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        ;
         if (Input.touchCount > 0 && currentFurniture != null){
             Touch touch = Input.GetTouch(0);
             

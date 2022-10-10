@@ -19,6 +19,8 @@ public class UIManager : MonoBehaviour
         get{return GetComponent<SaveManager>();}
     }
 
+    public FurnitureAdder furnitureAdder;
+
     public GameObject player;
     public GameObject canvas;
 
@@ -45,11 +47,14 @@ public class UIManager : MonoBehaviour
     public void rotateBy90Degrees(string message){
         editFurniture.rotateBy90Degrees(message);
     }
+
+    //Done button was clicked
     public void saveFurniture(string message){
 
 
         FurnitureData data = editFurniture.convertToFurnitureData();
         saveManager.saveFurniture(Manager, data);
+        furnitureAdder.addFurniture(data);
     }
 
 }
