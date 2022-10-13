@@ -43,7 +43,7 @@ public class SaveManager : MonoBehaviour
         }
     }
     //Save room to firebase 
-    public void saveFurniture(UnityMessageManager messenger, FurnitureData furnitureData){
+    public void saveOrUpdateFurniture(UnityMessageManager messenger, FurnitureData furnitureData, bool isUpdating){
         if(furnitureData != null){
 
             FurnitureJSON data = new FurnitureJSON();
@@ -58,7 +58,14 @@ public class SaveManager : MonoBehaviour
             //Convert object into json
             string json = JsonUtility.ToJson(data);
             //Send it to flutter app
-            messenger.SendMessageToFlutter("saveFurniture:"+json);
+
+            if(isUpdating){
+                messenger.SendMessageToFlutter("updateFurniture:"+json);
+            }
+            else{
+                messenger.SendMessageToFlutter("saveFurniture:"+json);
+            }
+            
         }
                 
     }

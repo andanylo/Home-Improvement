@@ -6,11 +6,14 @@ using Newtonsoft.Json.Linq;
 
 public class FurnitureAdder : MonoBehaviour
 {
-    private List<GameObject> furnitures = new List<GameObject>();
-    public GameObject furniturePrefab;
+
+ 
+
+    public UIManager uimanager;
     // Start is called before the first frame update
     void Start()
     {
+
        // recieveFurnituresFromDatabase(" {\"kitchen_sink\":{\"4f03410a-22a2-417a-8bc2-fa97cd60f3eb\": {\"room_ID\": \"n/a\",\"xPos\": 2.092411994934082,\"xRot\": 0,\"yPos\": 0.10121464729309082,\"yRot\": 0}}}");
     }
 
@@ -78,7 +81,7 @@ public class FurnitureAdder : MonoBehaviour
                 
             }
          }
-            Debug.Log(list.Count);
+         
          fetchFurniture(list);
 
     }
@@ -87,20 +90,36 @@ public class FurnitureAdder : MonoBehaviour
         GameObject furniture;
 
 
+        Debug.Log(data.name);
+        GameObject prefab = Resources.Load<GameObject>("Prefabs/Furnitures/" + data.name);
         
-        furniture = Instantiate(furniturePrefab) as GameObject;
+        furniture = Instantiate(prefab) as GameObject;
         furniture.AddComponent<FurnitureScript>();
         furniture.name = "Furniture_Object";
         
         furniture.GetComponent<FurnitureScript>().furnitureData = data;
 
-        this.furnitures.Add(furniture);
-        //furnitures.
+        uimanager.furnitures.Add(furniture);
+    }
+
+
+    public void updateFurniture(FurnitureData newData){
+        foreach(GameObject furniture in uimanager.furnitures){
+            furniture.SetActive(true);
+            FurnitureScript furnitureScript = furniture.GetComponent<FurnitureScript>();
+            if(furnitureScript != null){
+
+                //Check ids of furniture data
+                if(furnitureScript.furnitureData.furnitureID == newData.furnitureID){
+                    furnitureScript.furnitureData = newData;
+                }
+            }
+        }
     }
 
     //Add furniture from fdatabase based on list of data
     public void fetchFurniture(List<FurnitureData> furnitureList){
-        foreach(GameObject furnitureGameObject in furnitures){
+        foreach(GameObject furnitureGameObject in uimanager.furnitures){
             Destroy(furnitureGameObject);
         }
 

@@ -321,7 +321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e7e7c9da443e4c9294af86ab14c7699, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  furniturePrefab: {fileID: 4996777976880155029, guid: 45fad92836b9546269d1c04aeff5e348, type: 3}
+  uimanager: {fileID: 957494545}
 --- !u!4 &56509819
 Transform:
   m_ObjectHideFlags: 0
@@ -589,7 +589,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   furniture: {fileID: 1519068713}
   player: {fileID: 52987805}
-  virtualCamera: {fileID: 616488814}
 --- !u!114 &957494545
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -602,6 +601,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f005de149fb64d23b3d483b9f96e59b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  furnitures: []
+  virtualCamera: {fileID: 616488814}
+  isDraggingCamera: 0
+  editing: 0
   furnitureAdder: {fileID: 56509818}
   player: {fileID: 52987805}
   canvas: {fileID: 1423931941}
@@ -1141,7 +1144,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 0.45490196}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

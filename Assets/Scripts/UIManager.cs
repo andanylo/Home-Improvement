@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class UIManager : MonoBehaviour
 {
+
+    public List<GameObject> furnitures = new List<GameObject>();
      private UnityMessageManager Manager
         {
          get { return GetComponent<UnityMessageManager>(); }
@@ -19,6 +22,13 @@ public class UIManager : MonoBehaviour
         get{return GetComponent<SaveManager>();}
     }
 
+    public CinemachineVirtualCamera virtualCamera;
+
+    private float cameraSpeed = 3F;
+    public bool isDraggingCamera = false;
+
+
+    public bool editing = false;
     public FurnitureAdder furnitureAdder;
 
     public GameObject player;
@@ -30,10 +40,11 @@ public class UIManager : MonoBehaviour
     }
     //Change editing status
     public void changeEditingStatus(string isEditing){
-        bool editing = isEditing == "true";
+        this.editing = isEditing == "true";
         editFurniture.cancelFurnitureEditing("");
-        player.SetActive(!editing);
-        canvas.SetActive(!editing);
+        virtualCamera.m_Follow = editing ? null : player.transform;
+        player.SetActive(!this.editing);
+        canvas.SetActive(!this.editing);
     }
 
 
@@ -51,10 +62,37 @@ public class UIManager : MonoBehaviour
     //Done button was clicked
     public void saveFurniture(string message){
 
-
         FurnitureData data = editFurniture.convertToFurnitureData();
-        saveManager.saveFurniture(Manager, data);
-        furnitureAdder.addFurniture(data);
-    }
 
+        bool isEditing = !(string.IsNullOrWhiteSpace(editFurniture.getCurrentFurniture().id));
+        saveManager.saveOrUpdateFurniture(Manager, data, isEditing == true);
+
+        if(isEditing){
+            furnitureAdder.updateFurniture(data);
+        }
+        else{
+            furnitureAdder.addFurniture(data);
+        }
+        
+
+        editFurniture.cancelFurnitureEditing("");
+    }
+    void Update(){
+
+        //Move around camera
+        if (Input.touchCount > 0 && virtualCamera.m_Follow == null) {
+            if(Input.GetTouch(0).phase == TouchPhase.Moved){
+                this.isDraggingCamera = true;
+
+                 Vector2 touchDeltaPosition = Input.GetTouch(0).deltaPosition;
+            
+                virtualCamera.transform.Translate(-touchDeltaPosition.x * Time.deltaTime * 0.1f, -touchDeltaPosition.y * Time.deltaTime * 0.1f, 0);
+            }
+            else{
+                this.isDraggingCamera = false;
+            }
+            
+        }
+        
+    }
 }
