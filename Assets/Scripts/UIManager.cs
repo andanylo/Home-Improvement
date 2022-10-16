@@ -7,7 +7,8 @@ public class UIManager : MonoBehaviour
 {
 
     public List<GameObject> furnitures = new List<GameObject>();
-     private UnityMessageManager Manager
+    public List<GameObject> rooms = new List<GameObject>();
+    public UnityMessageManager Manager
         {
          get { return GetComponent<UnityMessageManager>(); }
         } 
@@ -17,10 +18,12 @@ public class UIManager : MonoBehaviour
         get{ return GetComponent<EditFurniture>(); }
     }
 
-    //Get save manager
-    private SaveManager saveManager{
-        get{return GetComponent<SaveManager>();}
+    //Get Edit Room script
+    public EditRoom editRoom{
+        get{ return GetComponent<EditRoom>();}
     }
+
+
 
     public CinemachineVirtualCamera virtualCamera;
 
@@ -36,13 +39,20 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        saveManager.setEditFurnitureObject(editFurniture);
+      
     }
     //Change editing status
     public void changeEditingStatus(string isEditing){
         this.editing = isEditing == "true";
-        editFurniture.cancelFurnitureEditing("");
+
+        editFurniture.reset();
+        editRoom.reset();
+
         virtualCamera.m_Follow = editing ? null : player.transform;
+
+
+        editRoom.enableAddButtons(rooms, this.editing);
+        
         player.SetActive(!this.editing);
         canvas.SetActive(!this.editing);
     }
@@ -59,13 +69,13 @@ public class UIManager : MonoBehaviour
         editFurniture.rotateBy90Degrees(message);
     }
 
-    //Done button was clicked
+    //Done button for furniture was clicked
     public void saveFurniture(string message){
 
         FurnitureData data = editFurniture.convertToFurnitureData();
 
         bool isEditing = !(string.IsNullOrWhiteSpace(editFurniture.getCurrentFurniture().id));
-        saveManager.saveOrUpdateFurniture(Manager, data, isEditing == true);
+        SaveManager.saveOrUpdateFurniture(Manager, data, isEditing == true);
 
         if(isEditing){
             furnitureAdder.updateFurniture(data);
@@ -77,6 +87,15 @@ public class UIManager : MonoBehaviour
 
         editFurniture.cancelFurnitureEditing("");
     }
+
+    //MESSAGE FROM FLUTTER: CALL EDIT ROOm
+
+    //Done button for room was clicked
+    public void saveRoom(string message){
+
+    }
+
+
     void Update(){
 
         //Move around camera

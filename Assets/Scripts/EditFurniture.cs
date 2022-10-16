@@ -29,9 +29,6 @@ public class EditFurniture : MonoBehaviour
     private GameObject editingFurnitureObject;
 
     public GameObject furniture;
-    public GameObject player;
-
-    
 
 
     //Add a new furniture to canvas
@@ -77,7 +74,7 @@ public class EditFurniture : MonoBehaviour
 
         uimanager.virtualCamera.m_Follow = furniture.transform;
         this.currentFurniture = templateFromData;
-        this.currentFurnitureRotation = editingFurnitureObject.transform.eulerAngles.z;
+        this.currentFurnitureRotation = data.rot.z;
 
     }
 
@@ -112,8 +109,14 @@ public class EditFurniture : MonoBehaviour
     //Cancel editing of furniture and reset values
     public void cancelFurnitureEditing(string message){
         
+
+        reset();
         
-        uimanager.virtualCamera.m_Follow = null;
+        
+    }
+
+
+    public void reset(){
         currentFurniture = null;
         currentFurnitureRotation = 0f;
 
@@ -129,7 +132,6 @@ public class EditFurniture : MonoBehaviour
         }
         this.editingFurnitureObject = null;
     }
-
 
     //Check if funiture is inside the house
     public bool checkIfFurnitureIsInside(){
@@ -248,25 +250,27 @@ public class EditFurniture : MonoBehaviour
         else if(Input.touchCount > 0 && currentFurniture == null && uimanager.editing == true){
 
             Touch touch = Input.GetTouch(0);
-            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector2.zero);
-            if(hit.collider != null)
-            {
-                //Check if Furniture was clicked to
-                if(hit.collider.gameObject.GetComponent<FurnitureScript>() != null){
-                    GameObject clickedFurniture = hit.collider.gameObject;
-                    FurnitureData clickedData = clickedFurniture.GetComponent<FurnitureScript>().furnitureData;
+            if(touch.phase == TouchPhase.Began){
+                RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector2.zero);
+                if(hit.collider != null)
+                {
+                    //Check if Furniture was clicked to
+                    if(hit.collider.gameObject.GetComponent<FurnitureScript>() != null){
+                        GameObject clickedFurniture = hit.collider.gameObject;
+                        FurnitureData clickedData = clickedFurniture.GetComponent<FurnitureScript>().furnitureData;
 
-                    if(clickedFurniture != null && clickedData != null){
-                        this.editingFurnitureObject = clickedFurniture;
-                        clickedFurniture.SetActive(false);
+                        if(clickedFurniture != null && clickedData != null){
+                            this.editingFurnitureObject = clickedFurniture;
+                            clickedFurniture.SetActive(false);
                         
-                        enableFurnitureEditing(clickedData);
-                        setTemplateActive(clickedData, clickedFurniture);
-                    }
+                            enableFurnitureEditing(clickedData);
+                            setTemplateActive(clickedData, clickedFurniture);
+                        }
 
+                    }
                 }
-                
             }
+            
         }
         
     }

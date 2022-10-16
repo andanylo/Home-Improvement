@@ -89,8 +89,6 @@ public class FurnitureAdder : MonoBehaviour
     public void addFurniture(FurnitureData data){
         GameObject furniture;
 
-
-        Debug.Log(data.name);
         GameObject prefab = Resources.Load<GameObject>("Prefabs/Furnitures/" + data.name);
         
         furniture = Instantiate(prefab) as GameObject;

@@ -5,19 +5,12 @@ using System;
 using System.Linq;
 using System.Web;
 
-public class SaveManager : MonoBehaviour
+public class SaveManager 
 {
-    private EditFurniture editFurniture;
 
     
-    void Start()
-    {
+ 
 
-    }
-
-    public void setEditFurnitureObject(EditFurniture editFurniture){
-        this.editFurniture = editFurniture;
-    }
 
 
     [Serializable]
@@ -42,8 +35,63 @@ public class SaveManager : MonoBehaviour
             this.yRot = 0.0f;
         }
     }
+
+
+    [Serializable]
+    private class RoomJSON{
+        public string id;
+        public string key_word;
+
+        public float xPos;
+        public float yPos;
+
+        public float xRot;
+        public float yRot;
+
+        public List<ConnectionJSON> connections;
+    }
+
+    [Serializable]
+    private class ConnectionJSON{
+        public string roomID;
+        public string direction;
+    }
+    //Convert room to JSON
+    public static void saveOrUpdateRoom(UnityMessageManager messenger, RoomData roomData, bool isUpdating){
+        if(roomData != null){
+            RoomJSON data = new RoomJSON();
+            data.id = roomData.id;
+            data.key_word = roomData.key_word;
+
+            data.xPos = roomData.pos.x;
+            data.yPos = roomData.pos.y;
+
+            data.xRot = 0.0f;
+            data.yRot = roomData.rot.z;
+
+            data.connections = new List<ConnectionJSON>();
+            foreach(Connection connection in roomData.connections){
+                ConnectionJSON connectionjson = new ConnectionJSON();
+                connectionjson.roomID = connection.id;
+                connectionjson.direction = DirectionManager.convertToString(connection.direction);
+                data.connections.Add(connectionjson);
+            }
+
+            string json = JsonUtility.ToJson(data);
+            Debug.Log(json);
+            // if(isUpdating){
+            //     messager.SendMessageToFlutter("saveRoom:"+json);
+            // }
+            // else{
+
+            // }
+        }
+    }
+
+
+
     //Save room to firebase 
-    public void saveOrUpdateFurniture(UnityMessageManager messenger, FurnitureData furnitureData, bool isUpdating){
+    public static void saveOrUpdateFurniture(UnityMessageManager messenger, FurnitureData furnitureData, bool isUpdating){
         if(furnitureData != null){
 
             FurnitureJSON data = new FurnitureJSON();
@@ -70,8 +118,5 @@ public class SaveManager : MonoBehaviour
                 
     }
 
-    void Update()
-    {
-        
-    }
+  
 }
