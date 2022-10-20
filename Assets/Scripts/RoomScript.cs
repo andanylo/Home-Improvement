@@ -25,6 +25,8 @@ public class RoomScript : MonoBehaviour
                 addButton.GetComponent<AddRoomButtonScript>().buttonDirection = DirectionManager.Instance.getNewDirectionFromDegrees(this._roomData.rot.z, addButton.GetComponent<AddRoomButtonScript>().buttonDirection);
             }
 
+            changeDoorVisibility(true);
+
         }
     }
 
@@ -37,14 +39,20 @@ public class RoomScript : MonoBehaviour
         if(roomData != null){
             this.editingRoom = isEditing;
 
-            //Enable or disable doors that don't have connections
-            changeDoorVisibility(isEditing);
-            if(isEditing){
+            changeDoorVisibility(!isEditing);
+            changeAddButtonVisibility(isEditing);
+            
+
+        }
+    }
+
+    public void changeAddButtonVisibility(bool isEditing){
+        if(isEditing){
                 var addButtonsWithoutConnections = addButtons.Where(addButton => !(roomData.connections.Any(connection => connection.direction == addButton.GetComponent<AddRoomButtonScript>().buttonDirection))).ToList();
             
                 //Enable or disable add buttons that don't have connections
                 foreach(GameObject addButton in addButtonsWithoutConnections){
-                    addButton.SetActive(isEditing);
+                    addButton.SetActive(true);
                 }
             }
             else{
@@ -52,9 +60,6 @@ public class RoomScript : MonoBehaviour
                     addButton.SetActive(false);
                 }
             }
-            
-
-        }
     }
 
     //Change visibility of doors, including those that doesn't have connections
@@ -62,7 +67,7 @@ public class RoomScript : MonoBehaviour
         var doorsWithoutConnections = doors.Where(door => !(roomData.connections.Any(connection => connection.direction == door.GetComponent<DoorScript>().direction))).ToList();
         var doorsWithConnections =  doors.Where(door => roomData.connections.Any(connection => connection.direction == door.GetComponent<DoorScript>().direction)).ToList();
         foreach(GameObject activeDoors in doorsWithConnections){
-            activeDoors.SetActive(true);
+            activeDoors.SetActive(false);
         }
 
         foreach(GameObject inactiveDoors in doorsWithoutConnections){
@@ -81,12 +86,16 @@ public class RoomScript : MonoBehaviour
         //Check if add button was clicked
         if(Input.touchCount > 0 && editingRoom){
             Touch touch = Input.GetTouch(0);
-            if(touch.phase == TouchPhase.Moved){
+            if(touch.phase == TouchPhase.Began){
                 RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector2.zero);
+                
                 if(hit.collider != null){
+
+
 
                     //Check if click hit has addbutton script
                     if(hit.collider.gameObject.GetComponent<AddRoomButtonScript>() != null){
+                        Debug.Log(hit.collider.gameObject);
                         this.editManager.didClickOnAddButton(transform.gameObject, roomData, hit.collider.gameObject.GetComponent<AddRoomButtonScript>().buttonDirection);
                     }
                 }

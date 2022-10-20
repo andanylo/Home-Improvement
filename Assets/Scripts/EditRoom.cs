@@ -1,83 +1,208 @@
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 
 public class EditRoom : MonoBehaviour
 {
-    
-
     private UnityMessageManager Manager
     {
-     get { return GetComponent<UnityMessageManager>(); }
-    }
-    private UIManager uimanager{
-        get{return GetComponent<UIManager>();}
+        get
+        {
+            return GetComponent<UnityMessageManager>();
+        }
     }
 
-    public Room getCurrentRoom(){
+    private UIManager uimanager
+    {
+        get
+        {
+            return GetComponent<UIManager>();
+        }
+    }
+
+    public Room getCurrentRoom()
+    {
         return currentRoom;
     }
 
     private Room currentRoom;
-    private float currentRoomRotation = 0f;
 
-    private GameObject editingRoom;
+    private float currentRoomRotation = 0f;
 
     public GameObject room;
 
     private GameObject senderRoom;
-    private RoomData senderData;
-    private Direction? senderDirection;
-    private Direction? originalConnectionDirection;
 
+    private RoomData senderData;
+
+    private Direction? senderDirection;
+
+    private Direction? originalConnectionDirection;
 
     // Start is called before the first frame update
     void Start()
     {
-        
     }
 
     //Convert current room into room data
-    public void convertToRoomData(){
+    public RoomData convertToRoomData()
+    {
+        Debug.Log(currentRoom == null);
+        if (currentRoom != null)
+        {
+            RoomData newRoomData = new RoomData();
+            newRoomData.key_word = currentRoom.key_word;
+            if (string.IsNullOrWhiteSpace(currentRoom.id))
+            {
+                newRoomData.id = System.Guid.NewGuid().ToString();
+            }
+            else
+            {
+                newRoomData.id = currentRoom.id;
+            }
 
-    }   
+            newRoomData.pos = room.transform.position;
+            newRoomData.rot = new Vector3(0f, 0f, this.currentRoomRotation);
+
+            string idConnectedWith = senderData.id;
+            Connection connection =
+                new Connection(idConnectedWith,
+                    DirectionManager
+                        .Instance
+                        .findOppositeDirection(senderDirection
+                            ?? Direction.right));
+
+            newRoomData.connections.Add (connection);
+            return newRoomData;
+        }
+        return null;
+    }
+
+    //Update sender room data connection on new room
+    public RoomData updateSenderConnections(RoomData newRoomData)
+    {
+        Connection connection =
+            new Connection(newRoomData.id, senderDirection ?? Direction.right);
+        senderData.connections.Add (connection);
+        return senderData;
+    }
 
     //Enable add buttons
-    public void enableAddButtons(List<GameObject> rooms, bool isEditing){
-        foreach(GameObject room in rooms){
+    public void enableAddButtons(List<GameObject> rooms, bool isEditing)
+    {
+        foreach (GameObject room in rooms)
+        {
             room.GetComponent<RoomScript>().setEditRoomManager(this);
             room.GetComponent<RoomScript>().changeEditingStatus(isEditing);
         }
     }
 
-    
-    // public Vector2 getRoomCenter(Direction senderConnectionDirection){
-    //     if(this.senderDirection != null && editingRoom != null){
-    //         switch(senderDirection){
-    //             case Direction.right:
+    //Get new room center
+    public Vector2
+    getRoomCenter(
+        Direction senderConnectionDirection,
+        Vector2 roomSize,
+        GameObject senderObject
+    )
+    {
+        if (senderConnectionDirection != null && room != null)
+        {
+            float edgeX = 0.0f;
+            float edgeY = 0.0f;
+            Vector2 senderSize =
+                senderObject.GetComponent<Collider>().bounds.size;
 
-    //         }
-    //     }
-    //     return null;
-    // }
+            switch (senderConnectionDirection)
+            {
+                case Direction.right:
+                    edgeX =
+                        senderObject.transform.position.x + (senderSize.x / 2);
+                    edgeY = senderObject.transform.position.y;
+                    return new Vector2(edgeX + roomSize.x / 2, edgeY);
+                case Direction.left:
+                    edgeX =
+                        senderObject.transform.position.x - (senderSize.x / 2);
+                    edgeY = senderObject.transform.position.y;
+                    return new Vector2(edgeX - (roomSize.x / 2), edgeY);
+                case Direction.top:
+                    edgeX = senderObject.transform.position.x;
+                    edgeY =
+                        senderObject.transform.position.y + (senderSize.y / 2);
+                    return new Vector2(edgeX, edgeY + roomSize.y / 2);
+                case Direction.bottom:
+                    edgeX = senderObject.transform.position.x;
+                    edgeY =
+                        senderObject.transform.position.y - (senderSize.y / 2);
+                    return new Vector2(edgeX, edgeY - roomSize.y / 2);
+            }
+        }
+        return Vector2.zero;
+    }
 
-     
+    //Add an empty room
+    public void addNewRoom(string jsonRoom)
+    {
+        JObject jobject = JObject.Parse(jsonRoom);
+        Room editRoom = new Room("", jobject["key_word"].ToString());
 
-    public void didClickOnAddButton(GameObject senderRoom, RoomData senderData, Direction directionToAdd){
+        uimanager.virtualCamera.m_Lens.OrthographicSize = 12;
+
+        foreach (GameObject room in uimanager.rooms)
+        {
+            room.GetComponent<RoomScript>().changeAddButtonVisibility(false);
+        }
+        setTemplateActive (editRoom);
+    }
+
+    //Set empty room template active
+    public void setTemplateActive(Room template)
+    {
+        GameObject prefab =
+            Resources.Load<GameObject>("Prefabs/Rooms/" + template.key_word);
+
+        Sprite texture =
+            Resources.Load<Sprite>("Textures/Rooms/" + template.key_word);
+        room.GetComponent<SpriteRenderer>().sprite = texture;
+
+        room.transform.localScale = prefab.transform.localScale;
+
+        room.SetActive(true);
+
+        room.transform.position =
+            getRoomCenter(this.senderDirection ?? Direction.right,
+            room.GetComponent<Renderer>().bounds.size,
+            this.senderRoom);
+
+        this.currentRoom = template;
+    }
+
+    public void didClickOnAddButton(
+        GameObject senderRoom,
+        RoomData senderData,
+        Direction directionToAdd
+    )
+    {
         this.senderData = senderData;
         this.senderDirection = directionToAdd;
-        this.originalConnectionDirection = DirectionManager.Instance.findOppositeDirection(directionToAdd);
+        this.senderRoom = senderRoom;
+        this.originalConnectionDirection =
+            DirectionManager.Instance.findOppositeDirection(directionToAdd);
 
         Manager.SendMessageToFlutter("presentRoomPopUp:true");
     }
 
-    public void reset(){
+    public void reset()
+    {
+        Debug.Log("reset");
         this.currentRoom = null;
         this.senderData = null;
         this.senderDirection = null;
         this.originalConnectionDirection = null;
         this.senderRoom = null;
 
-    }
+        room.SetActive(false);
 
+        uimanager.virtualCamera.m_Lens.OrthographicSize = 5;
+    }
 }

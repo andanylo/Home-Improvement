@@ -1,122 +1,178 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using Newtonsoft.Json.Linq;
 using Cinemachine;
-
+using Newtonsoft.Json.Linq;
+using UnityEngine;
 
 public class EditFurniture : MonoBehaviour
 {
     //Unity messager
     private UnityMessageManager Manager
     {
-     get { return GetComponent<UnityMessageManager>(); }
+        get
+        {
+            return GetComponent<UnityMessageManager>();
+        }
     }
-    private UIManager uimanager{
-        get{return GetComponent<UIManager>();}
+
+    private UIManager uimanager
+    {
+        get
+        {
+            return GetComponent<UIManager>();
+        }
     }
 
     private bool isMoving = false;
-    private Furniture currentFurniture;
-    public Furniture getCurrentFurniture(){
+
+    private Furniture _currentFurniture;
+
+    private Furniture currentFurniture{
+        get => _currentFurniture;
+        set{
+            this._currentFurniture = value;
+            editingStatusDidChange(value);
+            
+            
+
+        }
+    }
+    //If editing or canceled editing fuurniture
+    public void editingStatusDidChange(Furniture value){
+            uimanager.editRoom.enableAddButtons(uimanager.rooms, value != null ? false : uimanager.editing);
+            if(value != null){
+                bool isInside = checkIfFurnitureIsInside();
+                furniture.GetComponent<SpriteRenderer>().color = isInside ? new Color(0, 215, 0, 115) : new Color(215, 0, 0, 115);
+            }
+            else{
+
+            }
+    }
+
+    public Furniture getCurrentFurniture()
+    {
         return this.currentFurniture;
     }
 
     private float currentFurnitureRotation = 0;
-
 
     //Furniture game object that was clicked to edit
     private GameObject editingFurnitureObject;
 
     public GameObject furniture;
 
-
     //Add a new furniture to canvas
-     public void addNewFurniture(string furnitureJson){
-
+    public void addNewFurniture(string furnitureJson)
+    {
         //Convert string to json
         JObject json = JObject.Parse(furnitureJson);
-        Furniture editFurniture =  new Furniture("", json["furnitureName"].ToString(), json["furnitureImage"].ToString());
+        Furniture editFurniture =
+            new Furniture("",
+                json["furnitureName"].ToString(),
+                json["furnitureImage"].ToString());
 
-        setTemplateActive(editFurniture);
+        setTemplateActive (editFurniture);
     }
 
     //Set empty furniture template active
-    public void setTemplateActive(Furniture template){
-        GameObject prefab = Resources.Load<GameObject>("Prefabs/Furnitures/" + template.imageName);
+    public void setTemplateActive(Furniture template)
+    {
+        GameObject prefab =
+            Resources
+                .Load<GameObject>("Prefabs/Furnitures/" + template.imageName);
 
-        furniture.transform.localScale = new Vector2(prefab.transform.localScale.x, prefab.transform.localScale.y);
+        furniture.transform.localScale =
+            new Vector2(prefab.transform.localScale.x,
+                prefab.transform.localScale.y);
         furniture.SetActive(true);
 
-        Sprite texture = Resources.Load<Sprite>("Textures/Furnitures/" + template.imageName);
+        Sprite texture =
+            Resources.Load<Sprite>("Textures/Furnitures/" + template.imageName);
         furniture.GetComponent<SpriteRenderer>().sprite = texture;
 
         uimanager.virtualCamera.m_Follow = furniture.transform;
         this.currentFurniture = template;
     }
+
     //Set furniture template object from furniture object
-    public void setTemplateActive(FurnitureData data, GameObject editingFurnitureObject){
-        Furniture templateFromData = new Furniture(data.furnitureID, data.name, data.name);
+    public void setTemplateActive(
+        FurnitureData data,
+        GameObject editingFurnitureObject
+    )
+    {
+        Furniture templateFromData =
+            new Furniture(data.furnitureID, data.name, data.name);
 
-        furniture.transform.position = editingFurnitureObject.transform.position;
-        furniture.transform.rotation = editingFurnitureObject.transform.rotation;
-        furniture.transform.localScale = editingFurnitureObject.transform.localScale;
-        
-        
+        furniture.transform.position =
+            editingFurnitureObject.transform.position;
+        furniture.transform.rotation =
+            editingFurnitureObject.transform.rotation;
+        furniture.transform.localScale =
+            editingFurnitureObject.transform.localScale;
+
         //Set texture if not null
-        Sprite furnitureObjectTexture = editingFurnitureObject.GetComponentInChildren<SpriteRenderer>().sprite;
-        if(furnitureObjectTexture != null){
-            furniture.GetComponent<SpriteRenderer>().sprite = furnitureObjectTexture;
+        Sprite furnitureObjectTexture =
+            editingFurnitureObject
+                .GetComponentInChildren<SpriteRenderer>()
+                .sprite;
+        if (furnitureObjectTexture != null)
+        {
+            furniture.GetComponent<SpriteRenderer>().sprite =
+                furnitureObjectTexture;
         }
-
 
         furniture.SetActive(true);
 
         uimanager.virtualCamera.m_Follow = furniture.transform;
         this.currentFurniture = templateFromData;
         this.currentFurnitureRotation = data.rot.z;
-
     }
 
     //Enable furniture editing inside flutter app
-    private void enableFurnitureEditing(FurnitureData furnitureToEdit){
-        Manager.SendMessageToFlutter("enableFurnitureEditing:{\"name\": \"" + furnitureToEdit.name + "\", \"id\": \"" + furnitureToEdit.furnitureID + "\"}");
+    private void enableFurnitureEditing(FurnitureData furnitureToEdit)
+    {
+        Manager
+            .SendMessageToFlutter("enableFurnitureEditing:{\"name\": \"" +
+            furnitureToEdit.name +
+            "\", \"id\": \"" +
+            furnitureToEdit.furnitureID +
+            "\"}");
     }
 
     //Convert furniture template into furniture data
-    public FurnitureData convertToFurnitureData(){
-        if(currentFurniture != null){
+    public FurnitureData convertToFurnitureData()
+    {
+        if (currentFurniture != null)
+        {
             FurnitureData furnitureData = new FurnitureData();
 
-            furnitureData.name = currentFurniture.name.ToLower().Replace(' ', '_');
-            if(string.IsNullOrWhiteSpace(currentFurniture.id)){
+            furnitureData.name =
+                currentFurniture.name.ToLower().Replace(' ', '_');
+            if (string.IsNullOrWhiteSpace(currentFurniture.id))
+            {
                 furnitureData.furnitureID = System.Guid.NewGuid().ToString();
             }
-            else{
+            else
+            {
                 furnitureData.furnitureID = currentFurniture.id;
             }
             furnitureData.pos = furniture.transform.position;
-            furnitureData.rot = new Vector3(0f, 0f, this.currentFurnitureRotation);
+            furnitureData.rot =
+                new Vector3(0f, 0f, this.currentFurnitureRotation);
 
             return furnitureData;
         }
         return null;
-        
-
-
     }
 
     //Cancel editing of furniture and reset values
-    public void cancelFurnitureEditing(string message){
-        
-
+    public void cancelFurnitureEditing(string message)
+    {
         reset();
-        
-        
     }
 
-
-    public void reset(){
+    public void reset()
+    {
         currentFurniture = null;
         currentFurnitureRotation = 0f;
 
@@ -124,105 +180,132 @@ public class EditFurniture : MonoBehaviour
         furniture.transform.Rotate(new Vector3(0f, 0f, 0f));
         furniture.transform.position = new Vector2(0.0f, 0.0f);
 
-
         furniture.SetActive(false);
+
         //Set object to active again after completing editing
-        if(editingFurnitureObject != null){
+        if (editingFurnitureObject != null)
+        {
             editingFurnitureObject.SetActive(true);
         }
         this.editingFurnitureObject = null;
     }
 
     //Check if funiture is inside the house
-    public bool checkIfFurnitureIsInside(){
+    public bool checkIfFurnitureIsInside()
+    {
         GameObject[] rooms = GameObject.FindGameObjectsWithTag("Room");
-        
+
         Bounds furnitureBounds = furniture.GetComponent<Renderer>().bounds;
         Vector2 size = furnitureBounds.size;
         Vector2 position = furniture.transform.position;
-
 
         float minX = position.x - size.x / 2;
         float maxX = position.x + size.x / 2;
 
         float minY = position.y - size.y / 2;
         float maxY = position.y + size.y / 2;
+
         //Check if current furniture is not inside other furniture
-        foreach(GameObject furn in uimanager.furnitures){
-            if(!ReferenceEquals(furn, this.editingFurnitureObject)){
-                Bounds objectBounds = furn.GetComponentInChildren<Renderer>().bounds;
-                if(furnitureBounds.Intersects(objectBounds)){
+        foreach (GameObject furn in uimanager.furnitures)
+        {
+            if (!ReferenceEquals(furn, this.editingFurnitureObject))
+            {
+                Bounds objectBounds =
+                    furn.GetComponentInChildren<Renderer>().bounds;
+                if (furnitureBounds.Intersects(objectBounds))
+                {
                     return false;
                 }
             }
-            
         }
 
         //Check in each room
-        foreach(GameObject room in rooms){
+        foreach (GameObject room in rooms)
+        {
             Bounds bounds = room.GetComponent<Collider>().bounds;
-            if (bounds.Contains(new Vector2(minX, minY))
-            && bounds.Contains(new Vector2(minX, maxY)) &&
-            bounds.Contains(new Vector2(maxX, minY)) &&
-            bounds.Contains(new Vector2(maxX, maxY))){
+            if (
+                bounds.Contains(new Vector2(minX, minY)) &&
+                bounds.Contains(new Vector2(minX, maxY)) &&
+                bounds.Contains(new Vector2(maxX, minY)) &&
+                bounds.Contains(new Vector2(maxX, maxY))
+            )
+            {
                 return true;
             }
         }
 
-        
         return false;
     }
 
     //Delete furniture
-    public void deleteFurniture(string furnitureID){
-        GameObject furnitureToDelete = uimanager.furnitures.Find(o => o.GetComponent<FurnitureScript>().furnitureData.furnitureID == furnitureID);
+    public void deleteFurniture(string furnitureID)
+    {
+        GameObject furnitureToDelete =
+            uimanager
+                .furnitures
+                .Find(o =>
+                    o
+                        .GetComponent<FurnitureScript>()
+                        .furnitureData
+                        .furnitureID ==
+                    furnitureID);
 
-        if(furnitureToDelete != null){
-            uimanager.furnitures.Remove(furnitureToDelete);
-            Destroy(furnitureToDelete);
+        if (furnitureToDelete != null)
+        {
+            uimanager.furnitures.Remove (furnitureToDelete);
+            Destroy (furnitureToDelete);
         }
     }
 
-    public void rotateBy90Degrees(string message){
+    public void rotateBy90Degrees(string message)
+    {
         currentFurnitureRotation += 90.0f;
-        furniture.transform.Rotate(new Vector3(0f, 0f, currentFurnitureRotation));
+        furniture
+            .transform
+            .Rotate(new Vector3(0f, 0f, currentFurnitureRotation));
     }
 
     //Begin movement
-    private void beginMovement(){
+    private void beginMovement()
+    {
         isMoving = true;
         Manager.SendMessageToFlutter("movement:" + isMoving.ToString());
     }
 
     //Update movement
-    private void updateMovement(Touch touch){
+    private void updateMovement(Touch touch)
+    {
         Vector2 touchPosition = Camera.main.ScreenToWorldPoint(touch.position);
         furniture.transform.position = touchPosition;
     }
 
     //End movement
-    private void endMovement(){
+    private void endMovement()
+    {
         isMoving = false;
         Manager.SendMessageToFlutter("movement:" + isMoving.ToString());
     }
-    void Start(){
+
+    void Start()
+    {
         uimanager.editing = true;
     }
 
     private bool previousFurnitureStatus = false;
+
     // Update is called once per frame
     void Update()
     {
-        
-        if (Input.touchCount > 0 && currentFurniture != null){
+        if (Input.touchCount > 0 && currentFurniture != null)
+        {
             Touch touch = Input.GetTouch(0);
-            
+
             switch (touch.phase)
             {
                 //send message to flutter that furniture is moving
                 case TouchPhase.Began:
                     beginMovement();
-                    
+
                     break;
                 //send message to flutter that furniture stopped moving
                 case TouchPhase.Ended:
@@ -232,47 +315,65 @@ public class EditFurniture : MonoBehaviour
                     break;
             }
 
-            if(isMoving){
-                updateMovement(touch);
+            if (isMoving)
+            {
+                updateMovement (touch);
             }
-            
+
             bool newFurnitureStatus = checkIfFurnitureIsInside();
-            if(previousFurnitureStatus != newFurnitureStatus){
-                furniture.GetComponent<SpriteRenderer>().color = newFurnitureStatus ? new Color(0, 215, 0, 115) : new Color(215, 0, 0, 115);
-                Manager.SendMessageToFlutter("inside:" + newFurnitureStatus.ToString());
+            if (previousFurnitureStatus != newFurnitureStatus)
+            {
+                furniture.GetComponent<SpriteRenderer>().color =
+                    newFurnitureStatus
+                        ? new Color(0, 215, 0, 115)
+                        : new Color(215, 0, 0, 115);
+                Manager
+                    .SendMessageToFlutter("inside:" +
+                    newFurnitureStatus.ToString());
             }
             this.previousFurnitureStatus = newFurnitureStatus;
-
-
-
-        }
-        //Else activate furniture editing if clicked on furniture during editing
-        else if(Input.touchCount > 0 && currentFurniture == null && uimanager.editing == true){
-
+        } //Else activate furniture editing if clicked on furniture during editing
+        else if (
+            Input.touchCount > 0 &&
+            currentFurniture == null &&
+            uimanager.editing == true
+        )
+        {
             Touch touch = Input.GetTouch(0);
-            if(touch.phase == TouchPhase.Began){
-                RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector2.zero);
-                if(hit.collider != null)
+            if (touch.phase == TouchPhase.Began)
+            {
+                RaycastHit2D hit =
+                    Physics2D
+                        .Raycast(Camera.main.ScreenToWorldPoint(touch.position),
+                        Vector2.zero);
+                if (hit.collider != null)
                 {
                     //Check if Furniture was clicked to
-                    if(hit.collider.gameObject.GetComponent<FurnitureScript>() != null){
+                    if (
+                        hit
+                            .collider
+                            .gameObject
+                            .GetComponent<FurnitureScript>() !=
+                        null
+                    )
+                    {
                         GameObject clickedFurniture = hit.collider.gameObject;
-                        FurnitureData clickedData = clickedFurniture.GetComponent<FurnitureScript>().furnitureData;
+                        FurnitureData clickedData =
+                            clickedFurniture
+                                .GetComponent<FurnitureScript>()
+                                .furnitureData;
 
-                        if(clickedFurniture != null && clickedData != null){
+                        if (clickedFurniture != null && clickedData != null)
+                        {
                             this.editingFurnitureObject = clickedFurniture;
                             clickedFurniture.SetActive(false);
-                        
-                            enableFurnitureEditing(clickedData);
-                            setTemplateActive(clickedData, clickedFurniture);
-                        }
 
+                            enableFurnitureEditing (clickedData);
+                            setTemplateActive (clickedData, clickedFurniture);
+                        }
                     }
                 }
             }
-            
         }
-        
     }
-    
 }

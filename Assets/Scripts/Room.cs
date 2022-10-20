@@ -10,4 +10,8 @@ public class Room
       this.id = "";
       this.key_word = "";
     }
+    public Room(string id, string key_word){
+      this.id = id;
+      this.key_word = key_word;
+    }
 }

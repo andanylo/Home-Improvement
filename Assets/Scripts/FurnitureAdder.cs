@@ -59,10 +59,6 @@ public class FurnitureAdder : MonoBehaviour
         // //Foreach furniture type
         foreach(KeyValuePair<string, JObject> entry in values){
             string name = entry.Key;
-
-            
-
-
            Dictionary<string, JObject> obj = entry.Value.ToObject<Dictionary<string, JObject>>();
             
             

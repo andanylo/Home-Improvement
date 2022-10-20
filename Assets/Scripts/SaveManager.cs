@@ -1,64 +1,21 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
 using System.Linq;
 using System.Web;
+using UnityEngine;
 
-public class SaveManager 
+public class SaveManager
 {
-
-    
- 
-
-
-
-    [Serializable]
-    private class FurnitureJSON{
-        public string name;
-        public string id;
-
-        public float xPos;
-        public float yPos;
-
-        public float xRot;
-        public float yRot;
-
-        public FurnitureJSON(){
-            this.name = "";
-            this.id = "";
-
-            this.xPos = 0.0f;
-            this.yPos = 0.0f;
-
-            this.xRot = 0.0f;
-            this.yRot = 0.0f;
-        }
-    }
-
-
-    [Serializable]
-    private class RoomJSON{
-        public string id;
-        public string key_word;
-
-        public float xPos;
-        public float yPos;
-
-        public float xRot;
-        public float yRot;
-
-        public List<ConnectionJSON> connections;
-    }
-
-    [Serializable]
-    private class ConnectionJSON{
-        public string roomID;
-        public string direction;
-    }
     //Convert room to JSON
-    public static void saveOrUpdateRoom(UnityMessageManager messenger, RoomData roomData, bool isUpdating){
-        if(roomData != null){
+    public static void saveOrUpdateRoom(
+        UnityMessageManager messenger,
+        RoomData roomData,
+        bool isUpdating
+    )
+    {
+        if (roomData != null)
+        {
             RoomJSON data = new RoomJSON();
             data.id = roomData.id;
             data.key_word = roomData.key_word;
@@ -70,30 +27,37 @@ public class SaveManager
             data.yRot = roomData.rot.z;
 
             data.connections = new List<ConnectionJSON>();
-            foreach(Connection connection in roomData.connections){
+            foreach (Connection connection in roomData.connections)
+            {
                 ConnectionJSON connectionjson = new ConnectionJSON();
                 connectionjson.roomID = connection.id;
-                connectionjson.direction = DirectionManager.convertToString(connection.direction);
-                data.connections.Add(connectionjson);
+                connectionjson.direction =
+                    DirectionManager.convertToString(connection.direction);
+                data.connections.Add (connectionjson);
             }
 
             string json = JsonUtility.ToJson(data);
-            Debug.Log(json);
-            // if(isUpdating){
-            //     messager.SendMessageToFlutter("saveRoom:"+json);
-            // }
-            // else{
 
-            // }
+            if (!isUpdating)
+            {
+                messenger.SendMessageToFlutter("saveRoom:" + json);
+            }
+            else
+            {
+                messenger.SendMessageToFlutter("updateRoom:" + json);
+            }
         }
     }
 
-
-
-    //Save room to firebase 
-    public static void saveOrUpdateFurniture(UnityMessageManager messenger, FurnitureData furnitureData, bool isUpdating){
-        if(furnitureData != null){
-
+    //Save room to firebase
+    public static void saveOrUpdateFurniture(
+        UnityMessageManager messenger,
+        FurnitureData furnitureData,
+        bool isUpdating
+    )
+    {
+        if (furnitureData != null)
+        {
             FurnitureJSON data = new FurnitureJSON();
             data.name = furnitureData.name.ToLower().Replace(' ', '_');
             data.id = furnitureData.furnitureID;
@@ -105,18 +69,80 @@ public class SaveManager
 
             //Convert object into json
             string json = JsonUtility.ToJson(data);
-            //Send it to flutter app
 
-            if(isUpdating){
-                messenger.SendMessageToFlutter("updateFurniture:"+json);
+            //Send it to flutter app
+            if (isUpdating)
+            {
+                messenger.SendMessageToFlutter("updateFurniture:" + json);
             }
-            else{
-                messenger.SendMessageToFlutter("saveFurniture:"+json);
+            else
+            {
+                messenger.SendMessageToFlutter("saveFurniture:" + json);
             }
-            
         }
-                
+    }
+}
+
+[Serializable]
+public class FurnitureJSON
+{
+    public string name;
+
+    public string id;
+
+    public float xPos;
+
+    public float yPos;
+
+    public float xRot;
+
+    public float yRot;
+
+    public FurnitureJSON()
+    {
+        this.name = "";
+        this.id = "";
+
+        this.xPos = 0.0f;
+        this.yPos = 0.0f;
+
+        this.xRot = 0.0f;
+        this.yRot = 0.0f;
     }
 
-  
+    public static FurnitureJSON convertFromJSON(string jsonString)
+    {
+        return JsonUtility.FromJson<FurnitureJSON>(jsonString);
+    }
+}
+
+[Serializable]
+public class RoomJSON
+{
+    public string id;
+
+    public string key_word;
+
+    public float xPos;
+
+    public float yPos;
+
+    public float xRot;
+
+    public float yRot;
+
+    public List<ConnectionJSON> connections;
+
+    public static RoomJSON convertFromJSON(string jsonString)
+    {
+        return JsonUtility.FromJson<RoomJSON>(jsonString);
+    }
+}
+
+[Serializable]
+public class ConnectionJSON
+{
+    public string roomID;
+
+    public string direction;
 }
