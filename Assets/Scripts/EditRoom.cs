@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using System;
 
 public class EditRoom : MonoBehaviour
 {
@@ -26,7 +27,23 @@ public class EditRoom : MonoBehaviour
         return currentRoom;
     }
 
-    private Room currentRoom;
+    private Room _currentRoom;
+    public Room currentRoom{
+        get => _currentRoom;
+        set{
+            this._currentRoom = value;
+
+            bool intersects = canPlaceRoom();
+
+            if(currentRoom == null){
+                room.GetComponent<SpriteRenderer>().color = new Color(255,255,255);
+            }
+            else{
+                room.GetComponent<SpriteRenderer>().color = intersects ? new Color(215, 0, 0, 115) : new Color(0, 215, 0, 115);
+            }
+            Debug.Log(intersects);
+        }
+    }
 
     private float currentRoomRotation = 0f;
 
@@ -38,7 +55,8 @@ public class EditRoom : MonoBehaviour
 
     private Direction? senderDirection;
 
-    private Direction? originalConnectionDirection;
+    private Direction? currentDirection;
+
 
     // Start is called before the first frame update
     void Start()
@@ -68,10 +86,7 @@ public class EditRoom : MonoBehaviour
             string idConnectedWith = senderData.id;
             Connection connection =
                 new Connection(idConnectedWith,
-                    DirectionManager
-                        .Instance
-                        .findOppositeDirection(senderDirection
-                            ?? Direction.right));
+                    this.currentDirection ?? Direction.right);
 
             newRoomData.connections.Add (connection);
             return newRoomData;
@@ -117,23 +132,23 @@ public class EditRoom : MonoBehaviour
             {
                 case Direction.right:
                     edgeX =
-                        senderObject.transform.position.x + (senderSize.x / 2);
+                        senderObject.transform.position.x + (senderSize.x / 2) + 0.01f;
                     edgeY = senderObject.transform.position.y;
                     return new Vector2(edgeX + roomSize.x / 2, edgeY);
                 case Direction.left:
                     edgeX =
-                        senderObject.transform.position.x - (senderSize.x / 2);
+                        senderObject.transform.position.x - (senderSize.x / 2) - 0.01f;
                     edgeY = senderObject.transform.position.y;
                     return new Vector2(edgeX - (roomSize.x / 2), edgeY);
                 case Direction.top:
                     edgeX = senderObject.transform.position.x;
                     edgeY =
-                        senderObject.transform.position.y + (senderSize.y / 2);
+                        senderObject.transform.position.y + (senderSize.y / 2) + 0.01f;
                     return new Vector2(edgeX, edgeY + roomSize.y / 2);
                 case Direction.bottom:
                     edgeX = senderObject.transform.position.x;
                     edgeY =
-                        senderObject.transform.position.y - (senderSize.y / 2);
+                        senderObject.transform.position.y - (senderSize.y / 2) - 0.01f;
                     return new Vector2(edgeX, edgeY - roomSize.y / 2);
             }
         }
@@ -148,9 +163,9 @@ public class EditRoom : MonoBehaviour
 
         uimanager.virtualCamera.m_Lens.OrthographicSize = 12;
 
-        foreach (GameObject room in uimanager.rooms)
+        foreach (GameObject otherRooms in uimanager.rooms)
         {
-            room.GetComponent<RoomScript>().changeAddButtonVisibility(false);
+            otherRooms.GetComponent<RoomScript>().changeAddButtonVisibility(false);
         }
         setTemplateActive (editRoom);
     }
@@ -177,6 +192,56 @@ public class EditRoom : MonoBehaviour
         this.currentRoom = template;
     }
 
+    //Check if intersects with other rooms
+    public bool intersectsWithOthers(List<GameObject> rooms){
+        Bounds currBounds = new Bounds(new Vector3(room.transform.position.x, room.transform.position.y, 1.0f), room.GetComponent<Renderer>().bounds.size); //room.GetComponent<Renderer>().bounds;
+
+        Debug.Log(currBounds);
+        foreach(GameObject otherRooms in rooms){
+            Bounds roomBounds = otherRooms.GetComponentInChildren<Renderer>().bounds;
+            if(roomBounds != null && currBounds != null){
+                Debug.Log(roomBounds);
+
+                if(currBounds.Intersects(roomBounds)){
+                    return true;
+                }
+            }
+            else{
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Check if it is allowed to add and send messaage to flutter
+    public bool canPlaceRoom(){
+        bool intersects = intersectsWithOthers(uimanager.rooms);
+        uimanager.Manager.SendMessageToFlutter("intersectsWithOtherRooms:" + intersects.ToString());
+
+        return intersects;
+    }
+
+    //Rotate room
+    public void rotateCurrentRoom(){
+        this.currentRoomRotation += 90f;
+
+        room.transform.eulerAngles = new Vector3(0f, 0f, this.currentRoomRotation);
+        //Direction newDirectionConnection = DirectionManager.Instance.getNewDirectionFromDegrees((float) Math.Round(room.transform.eulerAngles.z), this.currentDirection ?? Direction.right);
+
+        //Update direction connection
+       // this.currentDirection = newDirectionConnection;
+        
+        //Get new center
+        room.transform.position = getRoomCenter(this.senderDirection ?? Direction.right, room.GetComponent<Renderer>().bounds.size,
+            this.senderRoom);
+
+        bool canPlace = !canPlaceRoom();
+
+        room.GetComponent<SpriteRenderer>().color = canPlace ? new Color(0, 215, 0, 115) : new Color(215, 0, 0, 115);
+    }
+
+
+
     public void didClickOnAddButton(
         GameObject senderRoom,
         RoomData senderData,
@@ -186,7 +251,7 @@ public class EditRoom : MonoBehaviour
         this.senderData = senderData;
         this.senderDirection = directionToAdd;
         this.senderRoom = senderRoom;
-        this.originalConnectionDirection =
+        this.currentDirection =
             DirectionManager.Instance.findOppositeDirection(directionToAdd);
 
         Manager.SendMessageToFlutter("presentRoomPopUp:true");
@@ -194,15 +259,24 @@ public class EditRoom : MonoBehaviour
 
     public void reset()
     {
-        Debug.Log("reset");
         this.currentRoom = null;
         this.senderData = null;
         this.senderDirection = null;
-        this.originalConnectionDirection = null;
+        this.currentDirection = null;
         this.senderRoom = null;
+
+        this.currentRoomRotation = 0f;
+        this.room.transform.eulerAngles = new Vector3(0f, 0f, 0f);
 
         room.SetActive(false);
 
-        uimanager.virtualCamera.m_Lens.OrthographicSize = 5;
+        foreach (GameObject room in uimanager.rooms)
+        {
+            room
+                .GetComponent<RoomScript>()
+                .changeAddButtonVisibility(uimanager.editing);
+        }
+
+        uimanager.virtualCamera.m_Lens.OrthographicSize = 7;
     }
 }

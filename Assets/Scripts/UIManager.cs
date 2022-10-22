@@ -64,7 +64,7 @@ public class UIManager : MonoBehaviour
         editRoom.reset();
 
         virtualCamera.m_Follow = editing ? null : player.transform;
-        virtualCamera.m_Lens.OrthographicSize = 5;
+        virtualCamera.m_Lens.OrthographicSize = 7;
 
         editRoom.enableAddButtons(rooms, this.editing);
 
@@ -75,15 +75,15 @@ public class UIManager : MonoBehaviour
     //MESSAGE FROM FLUTTER: CALL EDIT FURNITURE
     public void addNewFurniture(string furnitureJson)
     {
-        editFurniture.addNewFurniture (furnitureJson);
+        editFurniture.addEmptyFurniture (furnitureJson);
     }
 
     public void cancelFurnitureEditing(string message)
     {
-        editFurniture.cancelFurnitureEditing (message);
+        editFurniture.cancelEditing (message);
     }
 
-    public void rotateBy90Degrees(string message)
+    public void rotateFurniture(string message)
     {
         editFurniture.rotateBy90Degrees (message);
     }
@@ -143,9 +143,14 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            roomAdder.addRoom (newRoom);
+            roomAdder.addRoomToScene (newRoom);
         }
         editRoom.reset();
+    }
+
+    public void rotateRoom(string message)
+    {
+        editRoom.rotateCurrentRoom();
     }
 
     public void cancelRoomEditing(string message)
@@ -156,7 +161,7 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         //Move around camera
-        if (Input.touchCount > 0 && virtualCamera.m_Follow == null)
+        if (Input.touchCount > 0)
         {
             if (Input.GetTouch(0).phase == TouchPhase.Moved)
             {

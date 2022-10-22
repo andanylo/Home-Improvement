@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 using System.Linq;
 
@@ -17,23 +18,27 @@ public class RoomScript : MonoBehaviour
             transform.position = this._roomData.pos;
             transform.Rotate(this._roomData.rot);
 
-            //Change direction of doors and buttons based on rotation
+           
+            changeDoorDirection(this._roomData.rot.z);
+            changeDoorVisibility(true);
+        }
+    }
+
+
+    public void changeDoorDirection(float rotation){
+         //Change direction of doors and buttons based on rotation
             foreach(GameObject door in doors){
-                door.GetComponent<DoorScript>().direction = DirectionManager.Instance.getNewDirectionFromDegrees(this._roomData.rot.z, door.GetComponent<DoorScript>().direction);
+                door.GetComponent<DoorScript>().direction = DirectionManager.Instance.getNewDirectionFromDegrees((float) Math.Round(rotation, 0), door.GetComponent<DoorScript>().direction);
             }
             foreach(GameObject addButton in addButtons){
-                addButton.GetComponent<AddRoomButtonScript>().buttonDirection = DirectionManager.Instance.getNewDirectionFromDegrees(this._roomData.rot.z, addButton.GetComponent<AddRoomButtonScript>().buttonDirection);
+                addButton.GetComponent<AddRoomButtonScript>().buttonDirection = DirectionManager.Instance.getNewDirectionFromDegrees((float) Math.Round(rotation, 0), addButton.GetComponent<AddRoomButtonScript>().buttonDirection);
             }
-
-            changeDoorVisibility(true);
-
-        }
     }
 
 
     private EditRoom editManager;
 
-    private bool editingRoom = false; 
+    public bool editingRoom = false; 
     //Enable / disable edit buttons with doors
     public void changeEditingStatus(bool isEditing){
         if(roomData != null){
@@ -94,8 +99,7 @@ public class RoomScript : MonoBehaviour
 
 
                     //Check if click hit has addbutton script
-                    if(hit.collider.gameObject.GetComponent<AddRoomButtonScript>() != null){
-                        Debug.Log(hit.collider.gameObject);
+                    if(hit.collider.gameObject.GetComponent<AddRoomButtonScript>() != null && addButtons.Exists(button => ReferenceEquals(button, hit.collider.gameObject))){
                         this.editManager.didClickOnAddButton(transform.gameObject, roomData, hit.collider.gameObject.GetComponent<AddRoomButtonScript>().buttonDirection);
                     }
                 }

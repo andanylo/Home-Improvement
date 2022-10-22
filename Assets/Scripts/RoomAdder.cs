@@ -34,7 +34,7 @@ public class RoomAdder : MonoBehaviour
             standardLivingRoom.key_word = "living_room";
             standardLivingRoom.pos = new Vector2(0.0f, 0.0f);
 
-            addRoom (standardLivingRoom);
+            addRoomToScene (standardLivingRoom);
 
             SaveManager
                 .saveOrUpdateRoom(uimanager.Manager, standardLivingRoom, false);
@@ -70,7 +70,6 @@ public class RoomAdder : MonoBehaviour
                     {
                         list.Add (roomData);
                     }
-                    Debug.Log(roomData.key_word);
                 }
             }
             fetchRooms (list);
@@ -87,11 +86,11 @@ public class RoomAdder : MonoBehaviour
 
         foreach (RoomData data in roomList)
         {
-            addRoom (data);
+            addRoomToScene (data);
         }
     }
 
-    public void addRoom(RoomData roomData)
+    public void addRoomToScene(RoomData roomData)
     {
         GameObject room;
 
@@ -103,6 +102,7 @@ public class RoomAdder : MonoBehaviour
         room.name = "Room_Object";
 
         room.GetComponent<RoomScript>().roomData = roomData;
+        room.GetComponent<RoomScript>().editingRoom = uimanager.editing;
         room.GetComponent<RoomScript>().setEditRoomManager(uimanager.editRoom);
 
         uimanager.rooms.Add (room);

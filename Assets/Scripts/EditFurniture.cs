@@ -32,9 +32,6 @@ public class EditFurniture : MonoBehaviour
         set{
             this._currentFurniture = value;
             editingStatusDidChange(value);
-            
-            
-
         }
     }
     //If editing or canceled editing fuurniture
@@ -43,6 +40,11 @@ public class EditFurniture : MonoBehaviour
             if(value != null){
                 bool isInside = checkIfFurnitureIsInside();
                 furniture.GetComponent<SpriteRenderer>().color = isInside ? new Color(0, 215, 0, 115) : new Color(215, 0, 0, 115);
+                Manager
+                    .SendMessageToFlutter("inside:" +
+                    isInside.ToString());
+                
+                 uimanager.virtualCamera.m_Follow = furniture.transform;
             }
             else{
 
@@ -62,7 +64,7 @@ public class EditFurniture : MonoBehaviour
     public GameObject furniture;
 
     //Add a new furniture to canvas
-    public void addNewFurniture(string furnitureJson)
+    public void addEmptyFurniture(string furnitureJson)
     {
         //Convert string to json
         JObject json = JObject.Parse(furnitureJson);
@@ -84,13 +86,16 @@ public class EditFurniture : MonoBehaviour
         furniture.transform.localScale =
             new Vector2(prefab.transform.localScale.x,
                 prefab.transform.localScale.y);
+        furniture.transform.position = Camera.main.transform.position;
         furniture.SetActive(true);
-
+        
         Sprite texture =
             Resources.Load<Sprite>("Textures/Furnitures/" + template.imageName);
         furniture.GetComponent<SpriteRenderer>().sprite = texture;
 
-        uimanager.virtualCamera.m_Follow = furniture.transform;
+
+       
+        
         this.currentFurniture = template;
     }
 
@@ -123,8 +128,10 @@ public class EditFurniture : MonoBehaviour
 
         furniture.SetActive(true);
 
-        uimanager.virtualCamera.m_Follow = furniture.transform;
+        
         this.currentFurniture = templateFromData;
+
+        
         this.currentFurnitureRotation = data.rot.z;
     }
 
@@ -158,7 +165,7 @@ public class EditFurniture : MonoBehaviour
             }
             furnitureData.pos = furniture.transform.position;
             furnitureData.rot =
-                new Vector3(0f, 0f, this.currentFurnitureRotation);
+                new Vector3(0f, 0f, furniture.transform.eulerAngles.z);
 
             return furnitureData;
         }
@@ -166,7 +173,7 @@ public class EditFurniture : MonoBehaviour
     }
 
     //Cancel editing of furniture and reset values
-    public void cancelFurnitureEditing(string message)
+    public void cancelEditing(string message)
     {
         reset();
     }
@@ -177,10 +184,14 @@ public class EditFurniture : MonoBehaviour
         currentFurnitureRotation = 0f;
 
         //Reset furniture
-        furniture.transform.Rotate(new Vector3(0f, 0f, 0f));
+        furniture.transform.transform.eulerAngles = new Vector3(0.0f, 0.0f, 0.0f);
         furniture.transform.position = new Vector2(0.0f, 0.0f);
 
         furniture.SetActive(false);
+        if(uimanager.editing){
+            uimanager.virtualCamera.m_Follow = null;
+        }
+        
 
         //Set object to active again after completing editing
         if (editingFurnitureObject != null)
@@ -260,9 +271,8 @@ public class EditFurniture : MonoBehaviour
     public void rotateBy90Degrees(string message)
     {
         currentFurnitureRotation += 90.0f;
-        furniture
-            .transform
-            .Rotate(new Vector3(0f, 0f, currentFurnitureRotation));
+
+        furniture.transform.eulerAngles = new Vector3(0f, 0f, currentFurnitureRotation);
     }
 
     //Begin movement
@@ -336,7 +346,7 @@ public class EditFurniture : MonoBehaviour
         else if (
             Input.touchCount > 0 &&
             currentFurniture == null &&
-            uimanager.editing == true
+            uimanager.editing == true && uimanager.editRoom.currentRoom == null
         )
         {
             Touch touch = Input.GetTouch(0);

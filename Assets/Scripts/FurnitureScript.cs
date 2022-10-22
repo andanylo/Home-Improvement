@@ -10,8 +10,8 @@ public class FurnitureScript : MonoBehaviour
     get => _furnitureData;
     set{
         this._furnitureData = value;
-        transform.position = this.furnitureData.pos;
-        transform.Rotate(this.furnitureData.rot);
+        transform.position = this._furnitureData.pos;
+        transform.transform.eulerAngles = this._furnitureData.rot;
     }
     }
 
