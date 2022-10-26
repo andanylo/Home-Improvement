@@ -4,32 +4,35 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-
     public Rigidbody2D player;
+
     public GameObject showTaskBtn;
 
-    
+    public UIManager uimanager;
 
     bool isCloseToAnyOfTheTask = false;
-    
 
     private float taskmindistancedetection = 1.5f;
+
     // Start is called before the first frame update
     void Start()
     {
-        
-        showTaskBtn.SetActive(isCloseToAnyOfTheTask);
-        
+        showTaskBtn.SetActive (isCloseToAnyOfTheTask);
     }
 
     //Check if player is close to any of the task
-
-    public bool checkIfCloseToTask(){
+    public bool checkIfCloseToTask()
+    {
         GameObject[] tasks = GameObject.FindGameObjectsWithTag("Task");
 
-        foreach(GameObject task in tasks){
-            float distance = Vector2.Distance(player.transform.position, task.transform.position);
-            if(distance <= taskmindistancedetection){
+        foreach (GameObject task in tasks)
+        {
+            float distance =
+                Vector2
+                    .Distance(player.transform.position,
+                    task.transform.position);
+            if (distance <= taskmindistancedetection)
+            {
                 return true;
             }
         }
@@ -37,15 +40,25 @@ public class PlayerScript : MonoBehaviour
     }
 
     //Get closest task to a player
-    public GameObject getClosestTask(){
+    public GameObject getClosestTask()
+    {
         GameObject[] tasks = GameObject.FindGameObjectsWithTag("Task");
-        if(tasks.Length > 0){
-            float closestDistance = Vector2.Distance(player.transform.position, tasks[0].transform.position);
+        if (tasks.Length > 0)
+        {
+            float closestDistance =
+                Vector2
+                    .Distance(player.transform.position,
+                    tasks[0].transform.position);
             GameObject closestTask = tasks[0];
 
-            foreach(GameObject task in tasks){
-                float distance = Vector2.Distance(player.transform.position, task.transform.position);
-                if (distance < closestDistance){
+            foreach (GameObject task in tasks)
+            {
+                float distance =
+                    Vector2
+                        .Distance(player.transform.position,
+                        task.transform.position);
+                if (distance < closestDistance)
+                {
                     closestDistance = distance;
                     closestTask = task;
                 }
@@ -60,12 +73,10 @@ public class PlayerScript : MonoBehaviour
     {
         bool oldIsClose = isCloseToAnyOfTheTask;
         isCloseToAnyOfTheTask = checkIfCloseToTask();
-        
-        
-        
-        if(oldIsClose != isCloseToAnyOfTheTask){
-           
-            showTaskBtn.SetActive(isCloseToAnyOfTheTask);
+
+        if (oldIsClose != isCloseToAnyOfTheTask)
+        {
+            showTaskBtn.SetActive (isCloseToAnyOfTheTask);
         }
     }
 }

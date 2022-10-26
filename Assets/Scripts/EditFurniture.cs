@@ -204,7 +204,7 @@ public class EditFurniture : MonoBehaviour
     //Check if funiture is inside the house
     public bool checkIfFurnitureIsInside()
     {
-        GameObject[] rooms = GameObject.FindGameObjectsWithTag("Room");
+        List<GameObject> rooms = uimanager.rooms;
 
         Bounds furnitureBounds = furniture.GetComponent<Renderer>().bounds;
         Vector2 size = furnitureBounds.size;
@@ -233,7 +233,7 @@ public class EditFurniture : MonoBehaviour
         //Check in each room
         foreach (GameObject room in rooms)
         {
-            Bounds bounds = room.GetComponent<Collider>().bounds;
+            Bounds bounds = room.GetComponent<BoxCollider2D>().bounds;
             if (
                 bounds.Contains(new Vector2(minX, minY)) &&
                 bounds.Contains(new Vector2(minX, maxY)) &&
@@ -303,6 +303,21 @@ public class EditFurniture : MonoBehaviour
 
     private bool previousFurnitureStatus = false;
 
+
+    public void didTapOnFurniture(GameObject clickedFurniture){
+        if(currentFurniture == null && uimanager.editing == true && uimanager.editRoom.currentRoom == null){
+            FurnitureData clickedData = clickedFurniture.GetComponent<FurnitureScript>().furnitureData;
+
+            if (clickedFurniture != null && clickedData != null)
+            {
+                this.editingFurnitureObject = clickedFurniture;
+                clickedFurniture.SetActive(false);
+
+                enableFurnitureEditing (clickedData);
+                setTemplateActive (clickedData, clickedFurniture);
+            }
+        }
+    }
     // Update is called once per frame
     void Update()
     {
@@ -342,48 +357,6 @@ public class EditFurniture : MonoBehaviour
                     newFurnitureStatus.ToString());
             }
             this.previousFurnitureStatus = newFurnitureStatus;
-        } //Else activate furniture editing if clicked on furniture during editing
-        else if (
-            Input.touchCount > 0 &&
-            currentFurniture == null &&
-            uimanager.editing == true && uimanager.editRoom.currentRoom == null
-        )
-        {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Began)
-            {
-                RaycastHit2D hit =
-                    Physics2D
-                        .Raycast(Camera.main.ScreenToWorldPoint(touch.position),
-                        Vector2.zero);
-                if (hit.collider != null)
-                {
-                    //Check if Furniture was clicked to
-                    if (
-                        hit
-                            .collider
-                            .gameObject
-                            .GetComponent<FurnitureScript>() !=
-                        null
-                    )
-                    {
-                        GameObject clickedFurniture = hit.collider.gameObject;
-                        FurnitureData clickedData =
-                            clickedFurniture
-                                .GetComponent<FurnitureScript>()
-                                .furnitureData;
-
-                        if (clickedFurniture != null && clickedData != null)
-                        {
-                            this.editingFurnitureObject = clickedFurniture;
-                            clickedFurniture.SetActive(false);
-
-                            enableFurnitureEditing (clickedData);
-                            setTemplateActive (clickedData, clickedFurniture);
-                        }
-                    }
-                }
-            }
-        }
+        } 
     }
 }

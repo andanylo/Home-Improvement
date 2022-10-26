@@ -18,7 +18,7 @@ public class UIManager : MonoBehaviour
     }
 
     //Get Edit furniture script
-    private EditFurniture editFurniture
+    public EditFurniture editFurniture
     {
         get
         {
@@ -50,6 +50,8 @@ public class UIManager : MonoBehaviour
     public GameObject player;
 
     public GameObject canvas;
+
+    private GameObject clickedObject;
 
     void Start()
     {
@@ -120,32 +122,46 @@ public class UIManager : MonoBehaviour
     //Done button for room was clicked
     public void saveRoom(string message)
     {
-        RoomData newRoom = editRoom.convertToRoomData();
-
-        RoomData updatedRoom = editRoom.updateSenderConnections(newRoom);
-
-        //Find updated room to open door
-        foreach (GameObject roomObject in rooms)
+        if (editRoom.canBeEdited != false)
         {
-            RoomData currData = roomObject.GetComponent<RoomScript>().roomData;
-            if (currData.id == updatedRoom.id)
+            RoomData newRoom = editRoom.convertToRoomData();
+
+            bool isEditing =
+                !(string.IsNullOrWhiteSpace(editRoom.getCurrentRoom().id));
+
+            RoomData updatedRoom = editRoom.updateSenderConnections(newRoom);
+
+            if (updatedRoom != null)
             {
-                roomObject.GetComponent<RoomScript>().roomData = updatedRoom;
-            }
-        }
-        bool isEditing =
-            !(string.IsNullOrWhiteSpace(editRoom.getCurrentRoom().id));
+                //Find updated room to open door
+                foreach (GameObject roomObject in rooms)
+                {
+                    RoomData currData =
+                        roomObject.GetComponent<RoomScript>().roomData;
+                    if (currData.id == updatedRoom.id)
+                    {
+                        roomObject.GetComponent<RoomScript>().roomData =
+                            updatedRoom;
+                    }
+                }
 
-        SaveManager.saveOrUpdateRoom(Manager, updatedRoom, true);
-        SaveManager.saveOrUpdateRoom(Manager, newRoom, isEditing == true);
-        if (isEditing)
-        {
+                SaveManager.saveOrUpdateRoom(Manager, updatedRoom, true);
+            }
+            SaveManager.saveOrUpdateRoom(Manager, newRoom, isEditing == true);
+            if (isEditing)
+            {
+                roomAdder.updateRoom (newRoom);
+            }
+            else
+            {
+                roomAdder.addRoomToScene (newRoom);
+            }
+            editRoom.reset();
         }
         else
         {
-            roomAdder.addRoomToScene (newRoom);
+            Manager.SendMessageToFlutter("saveRoom: ");
         }
-        editRoom.reset();
     }
 
     public void rotateRoom(string message)
@@ -158,26 +174,84 @@ public class UIManager : MonoBehaviour
         editRoom.reset();
     }
 
+    public void didTapOnObject(GameObject tapped)
+    {
+        if (editing)
+        {
+            if (tapped.GetComponent<FurnitureScript>() != null)
+            {
+                editFurniture.didTapOnFurniture (tapped);
+            }
+            else if (tapped.GetComponent<RoomScript>() != null)
+            {
+                editRoom.didTapOnRoom (tapped);
+            }
+        }
+    }
+
     void Update()
     {
         //Move around camera
         if (Input.touchCount > 0)
         {
-            if (Input.GetTouch(0).phase == TouchPhase.Moved)
+            switch (Input.GetTouch(0).phase)
             {
-                this.isDraggingCamera = true;
+                case TouchPhase.Began:
+                    RaycastHit2D clickedStart =
+                        Physics2D
+                            .Raycast(Camera
+                                .main
+                                .ScreenToWorldPoint(Input.GetTouch(0).position),
+                            Vector2.zero);
 
-                Vector2 touchDeltaPosition = Input.GetTouch(0).deltaPosition;
+                    clickedObject = clickedStart.collider.gameObject;
+                    this.isDraggingCamera = false;
+                    break;
+                case TouchPhase.Moved:
+                    clickedObject = null;
 
-                virtualCamera
-                    .transform
-                    .Translate(-touchDeltaPosition.x * Time.deltaTime * 0.1f,
-                    -touchDeltaPosition.y * Time.deltaTime * 0.1f,
-                    0);
-            }
-            else
-            {
-                this.isDraggingCamera = false;
+                    if (
+                        editFurniture.getCurrentFurniture() == null &&
+                        editRoom.currentRoom == null
+                    )
+                    {
+                        this.isDraggingCamera = true;
+
+                        Vector2 touchDeltaPosition =
+                            Input.GetTouch(0).deltaPosition;
+
+                        virtualCamera
+                            .transform
+                            .Translate(-touchDeltaPosition.x *
+                            Time.deltaTime *
+                            0.25f,
+                            -touchDeltaPosition.y * Time.deltaTime * 0.25f,
+                            0);
+                    }
+
+                    break;
+                case TouchPhase.Ended:
+                    RaycastHit2D clickedEnd =
+                        Physics2D
+                            .Raycast(Camera
+                                .main
+                                .ScreenToWorldPoint(Input.GetTouch(0).position),
+                            Vector2.zero);
+
+                    if (
+                        ReferenceEquals(clickedEnd.collider.gameObject,
+                        clickedObject) &&
+                        clickedObject != null
+                    )
+                    {
+                        didTapOnObject (clickedObject);
+                    }
+                    clickedObject = null;
+                    this.isDraggingCamera = false;
+
+                    break;
+                default:
+                    break;
             }
         }
     }

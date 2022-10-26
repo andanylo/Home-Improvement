@@ -10,28 +10,49 @@ public class RoomScript : MonoBehaviour
     public List<GameObject> doors;
 
     private RoomData _roomData;
+    private Dictionary<GameObject, Direction> standardButtonDirections;
+    private Dictionary<GameObject, Direction> standardDoorDirections;
     public RoomData roomData
     {
         get => _roomData;
         set{
+            if(standardButtonDirections == null){
+                standardButtonDirections = new Dictionary<GameObject, Direction>();
+                foreach(GameObject button in addButtons){
+                    standardButtonDirections.Add(button, button.GetComponent<AddRoomButtonScript>().buttonDirection);
+                }
+            }
+            if(standardDoorDirections == null){
+                standardDoorDirections = new Dictionary<GameObject, Direction>();
+                foreach(GameObject door in doors){
+                    standardDoorDirections.Add(door, door.GetComponent<DoorScript>().direction);
+                }
+            }
+
+
             this._roomData = value;
             transform.position = this._roomData.pos;
-            transform.Rotate(this._roomData.rot);
+            transform.eulerAngles = this._roomData.rot;
 
            
             changeDoorDirection(this._roomData.rot.z);
             changeDoorVisibility(true);
+            changeAddButtonVisibility(editingRoom);
         }
     }
+
 
 
     public void changeDoorDirection(float rotation){
          //Change direction of doors and buttons based on rotation
             foreach(GameObject door in doors){
-                door.GetComponent<DoorScript>().direction = DirectionManager.Instance.getNewDirectionFromDegrees((float) Math.Round(rotation, 0), door.GetComponent<DoorScript>().direction);
+                door.GetComponent<DoorScript>().direction = DirectionManager.Instance.getNewDirectionFromDegrees((float) Math.Round(rotation, 0), standardDoorDirections[door]);
             }
             foreach(GameObject addButton in addButtons){
-                addButton.GetComponent<AddRoomButtonScript>().buttonDirection = DirectionManager.Instance.getNewDirectionFromDegrees((float) Math.Round(rotation, 0), addButton.GetComponent<AddRoomButtonScript>().buttonDirection);
+                Direction oldDir = addButton.GetComponent<AddRoomButtonScript>().buttonDirection;
+                addButton.GetComponent<AddRoomButtonScript>().buttonDirection = DirectionManager.Instance.getNewDirectionFromDegrees((float) Math.Round(rotation, 0), standardButtonDirections[addButton]);
+                Debug.Log($"{roomData.id} {addButton.transform.position} {oldDir} {addButton.GetComponent<AddRoomButtonScript>().buttonDirection}");
+
             }
     }
 
@@ -53,11 +74,17 @@ public class RoomScript : MonoBehaviour
 
     public void changeAddButtonVisibility(bool isEditing){
         if(isEditing){
-                var addButtonsWithoutConnections = addButtons.Where(addButton => !(roomData.connections.Any(connection => connection.direction == addButton.GetComponent<AddRoomButtonScript>().buttonDirection))).ToList();
-            
+                List<GameObject> addButtonsWithoutConnections = addButtons.Where(addButton => !(roomData.connections.Any(connection => connection.direction == addButton.GetComponent<AddRoomButtonScript>().buttonDirection))).ToList();
+                foreach(GameObject addButton in addButtons){
+                    addButton.SetActive(false);
+                }
+
                 //Enable or disable add buttons that don't have connections
                 foreach(GameObject addButton in addButtonsWithoutConnections){
+
+                   
                     addButton.SetActive(true);
+                    
                 }
             }
             else{

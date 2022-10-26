@@ -17,6 +17,14 @@ public class ButtonControl : MonoBehaviour
 
     public Button btn;
 
+    public UnityEvent MovingRight = new UnityEvent();
+
+    public UnityEvent MovingLeft = new UnityEvent();
+
+    public UnityEvent MovingUp = new UnityEvent();
+
+    public UnityEvent MovingDown = new UnityEvent();
+
     public void touchDownAction()
     {
         this.touchedDown = true;
@@ -60,6 +68,23 @@ public class ButtonControl : MonoBehaviour
                 touch.position -
                 new Vector2(btn.transform.position.x, btn.transform.position.y);
             Vector2 direction = Vector2.ClampMagnitude(offset, 1.0f);
+
+            if (offset.x > 100)
+            {
+                MovingRight.Invoke();
+            }
+            else if (offset.x < -100)
+            {
+                MovingLeft.Invoke();
+            }
+            else if (offset.y > 100)
+            {
+                MovingUp.Invoke();
+            }
+            else if (offset.y < -100)
+            {
+                MovingDown.Invoke();
+            }
 
             rb.velocity = direction * movementSpeed;
 

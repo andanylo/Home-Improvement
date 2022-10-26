@@ -90,6 +90,23 @@ public class RoomAdder : MonoBehaviour
         }
     }
 
+    public void updateRoom(RoomData roomData)
+    {
+        foreach (GameObject room in uimanager.rooms)
+        {
+            room.SetActive(true);
+            RoomScript roomScript = room.GetComponent<RoomScript>();
+            if (roomScript != null)
+            {
+                //Check ids of room data
+                if (roomScript.roomData.id == roomData.id)
+                {
+                    room.GetComponent<RoomScript>().roomData = roomData;
+                }
+            }
+        }
+    }
+
     public void addRoomToScene(RoomData roomData)
     {
         GameObject room;
