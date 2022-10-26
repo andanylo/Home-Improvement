@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 //using UnityStandardAssets.CrossPlatformInput;
@@ -69,19 +70,19 @@ public class ButtonControl : MonoBehaviour
                 new Vector2(btn.transform.position.x, btn.transform.position.y);
             Vector2 direction = Vector2.ClampMagnitude(offset, 1.0f);
 
-            if (offset.x > 100)
+            if (offset.x > 0)
             {
                 MovingRight.Invoke();
             }
-            else if (offset.x < -100)
+            else if (offset.x < 0)
             {
                 MovingLeft.Invoke();
             }
-            else if (offset.y > 100)
+            else if (offset.y > 0)
             {
                 MovingUp.Invoke();
             }
-            else if (offset.y < -100)
+            else if (offset.y < 0)
             {
                 MovingDown.Invoke();
             }

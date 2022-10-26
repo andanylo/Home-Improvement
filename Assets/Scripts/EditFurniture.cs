@@ -298,7 +298,7 @@ public class EditFurniture : MonoBehaviour
 
     void Start()
     {
-        uimanager.editing = true;
+        
     }
 
     private bool previousFurnitureStatus = false;

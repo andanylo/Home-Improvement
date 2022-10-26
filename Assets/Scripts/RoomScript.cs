@@ -31,7 +31,7 @@ public class RoomScript : MonoBehaviour
 
 
             this._roomData = value;
-            transform.position = this._roomData.pos;
+            transform.position = new Vector3(this._roomData.pos.x, this._roomData.pos.y, 1.0f);
             transform.eulerAngles = this._roomData.rot;
 
            

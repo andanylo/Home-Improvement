@@ -81,6 +81,24 @@ public class SaveManager
             }
         }
     }
+
+    //Update player task to database
+    public static void saveOrUpdatePlayerTask(
+        UnityMessageManager messenger,
+        PlayerTask playerTask,
+        bool updating
+    )
+    {
+        string json = JsonUtility.ToJson(playerTask);
+        if (updating)
+        {
+            messenger.SendMessageToFlutter("updatePlayerTask:" + json);
+        }
+        else
+        {
+            messenger.SendMessageToFlutter("savePlayerTask:" + json);
+        }
+    }
 }
 
 [Serializable]

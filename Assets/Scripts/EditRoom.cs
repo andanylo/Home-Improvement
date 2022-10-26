@@ -6,6 +6,7 @@ using System;
 
 public class EditRoom : MonoBehaviour
 {
+    //Communicator with flutter
     private UnityMessageManager Manager
     {
         get
@@ -27,6 +28,7 @@ public class EditRoom : MonoBehaviour
         return currentRoom;
     }
 
+    //Did set room template
     private Room _currentRoom;
     public Room currentRoom{
         get => _currentRoom;
@@ -68,7 +70,7 @@ public class EditRoom : MonoBehaviour
     {
     }
 
-    //Convert current room into room data
+    //Convert current room  into room data
     public RoomData convertToRoomData()
     {
         if (currentRoom != null)

@@ -9,6 +9,8 @@ public class UIManager : MonoBehaviour
 
     public List<GameObject> rooms = new List<GameObject>();
 
+    public FurnitureData currentClosestFurnitureData;
+
     public UnityMessageManager Manager
     {
         get
@@ -32,6 +34,14 @@ public class UIManager : MonoBehaviour
         get
         {
             return GetComponent<EditRoom>();
+        }
+    }
+
+    public TaskManager taskManager
+    {
+        get
+        {
+            return GetComponent<TaskManager>();
         }
     }
 
@@ -107,6 +117,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
+            taskManager.createAndSavePlayerTask(data.furnitureID, data.name);
             furnitureAdder.addFurniture (data);
         }
 
@@ -160,7 +171,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            Manager.SendMessageToFlutter("saveRoom: ");
+            Manager.SendMessageToFlutter("saveRoom:");
         }
     }
 

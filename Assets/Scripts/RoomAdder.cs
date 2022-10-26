@@ -115,7 +115,8 @@ public class RoomAdder : MonoBehaviour
             Resources.Load<GameObject>("Prefabs/Rooms/" + roomData.key_word);
 
         room = Instantiate(prefab) as GameObject;
-        room.AddComponent<RoomScript>();
+
+        // room.AddComponent<RoomScript>();
         room.name = "Room_Object";
 
         room.GetComponent<RoomScript>().roomData = roomData;
