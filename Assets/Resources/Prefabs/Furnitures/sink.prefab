@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 8510627175031842989}
   - component: {fileID: 3005304143547643220}
   m_Layer: 0
-  m_Name: kitchen_sink
+  m_Name: sink
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -172,11 +172,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3361205284760064403, guid: 18b4a50c84ab440fdb92c1f8493c23af, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.1
+      value: 1.51
       objectReference: {fileID: 0}
     - target: {fileID: 3361205284760064403, guid: 18b4a50c84ab440fdb92c1f8493c23af, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.1
+      value: 1.51
       objectReference: {fileID: 0}
     - target: {fileID: 3361205284760064403, guid: 18b4a50c84ab440fdb92c1f8493c23af, type: 3}
       propertyPath: m_LocalPosition.x

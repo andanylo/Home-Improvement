@@ -14,9 +14,8 @@ public class TaskManager : MonoBehaviour
 {
     private DateTime currentTime = DateTime.Now;
 
-    [SerializeField]
-    public Button displayButton;
-
+    //[SerializeField]
+    //public Button displayButton;
     [SerializeField]
     public PlayerScript _player;
 
@@ -67,11 +66,16 @@ public class TaskManager : MonoBehaviour
         }
         if (playerTask.complete_Status == false)
         {
-            displayButton.gameObject.SetActive(true);
+            uimanager
+                .Manager
+                .SendMessageToFlutter("taskButtonStatus:" + true.ToString());
         }
         else
         {
-            displayButton.gameObject.SetActive(false);
+            uimanager
+                .Manager
+                .SendMessageToFlutter("taskButtonStatus:" + false.ToString());
+            //displayButton.gameObject.SetActive(false);
         }
     }
 
@@ -87,11 +91,18 @@ public class TaskManager : MonoBehaviour
             {
                 if (playerTask.complete_Status == false)
                 {
-                    displayButton.gameObject.SetActive(true);
+                    uimanager
+                        .Manager
+                        .SendMessageToFlutter("taskButtonStatus:" +
+                        true.ToString());
+                    //Button.gameObject.SetActive(true);
                 }
                 else
                 {
-                    displayButton.gameObject.SetActive(false);
+                    uimanager
+                        .Manager
+                        .SendMessageToFlutter("taskButtonStatus:" +
+                        false.ToString());
                 }
             }
         }

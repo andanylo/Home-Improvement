@@ -9,7 +9,20 @@ public class UIManager : MonoBehaviour
 
     public List<GameObject> rooms = new List<GameObject>();
 
-    public FurnitureData currentClosestFurnitureData;
+    private FurnitureData _currentClosestFurnitureData;
+
+    public FurnitureData currentClosestFurnitureData
+    {
+        get
+        {
+            return _currentClosestFurnitureData;
+        }
+        set
+        {
+            this._currentClosestFurnitureData = value;
+            Manager.SendMessageToFlutter("currentClosestFurniture:" + (value == null ? "" : $"{value.name}"));
+        }
+    }
 
     public UnityMessageManager Manager
     {

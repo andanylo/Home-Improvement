@@ -7,8 +7,7 @@ using UnityEngine.UI;
 
 public class PlayerScript : MonoBehaviour
 {
-    public Button taskButton;
-
+    //public Button taskButton;
     [SerializeField]
     public ButtonControl moveButton;
 
@@ -171,8 +170,15 @@ public class PlayerScript : MonoBehaviour
             GameObject furniture = getClosestTask();
             if (furniture.GetComponent<FurnitureScript>() != null)
             {
-                uimanager.currentClosestFurnitureData =
-                    furniture.GetComponent<FurnitureScript>().furnitureData;
+                if (
+                    !ReferenceEquals(uimanager.currentClosestFurnitureData,
+                    furniture.GetComponent<FurnitureScript>().furnitureData)
+                )
+                {
+                    uimanager.currentClosestFurnitureData =
+                        furniture.GetComponent<FurnitureScript>().furnitureData;
+                }
+
                 makeFurnitureInteractble
                     .Invoke(furniture
                         .GetComponent<FurnitureScript>()
@@ -185,12 +191,26 @@ public class PlayerScript : MonoBehaviour
             }
             else
             {
-                taskButton.gameObject.SetActive(false);
+                if (uimanager.currentClosestFurnitureData != null)
+                {
+                    uimanager.currentClosestFurnitureData = null;
+                }
+
+                uimanager
+                    .Manager
+                    .SendMessageToFlutter("taskButtonStatus:" +
+                    false.ToString());
             }
         }
         else
         {
-            taskButton.gameObject.SetActive(false);
+            if (uimanager.currentClosestFurnitureData != null)
+            {
+                uimanager.currentClosestFurnitureData = null;
+            }
+            uimanager
+                .Manager
+                .SendMessageToFlutter("taskButtonStatus:" + false.ToString());
         }
         // if (hit.collider != null)
         // {
