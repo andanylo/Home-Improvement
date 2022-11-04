@@ -139,7 +139,7 @@ public class EditRoom : MonoBehaviour
             float edgeX = 0.0f;
             float edgeY = 0.0f;
 
-            Debug.Log(senderObject.GetComponent<BoxCollider2D>());
+            
             Vector2 senderSize =
                 senderObject.GetComponent<BoxCollider2D>().bounds.size;
 

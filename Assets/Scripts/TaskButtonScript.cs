@@ -21,23 +21,6 @@ public class TaskButtonScript : MonoBehaviour
         //       sceneID = SceneManager.GetActiveScene().buildIndex;
     }
 
-    public void didClickOnInteractButton()
-    {
-        if (manager.currentClosestFurnitureData != null)
-        {
-            PlayerTask playerTask =
-                manager
-                    .taskManager
-                    .getPlayerTaskFromFurniture(manager
-                        .currentClosestFurnitureData);
-            if (playerTask != null)
-            {
-                Debug.Log(playerTask.furnitureID);
-                manager.taskManager.completePlayerTask (playerTask);
-            }
-        }
-    }
-
     //methods for Main Menu buttons
     // public void SelectApartment()
     // {

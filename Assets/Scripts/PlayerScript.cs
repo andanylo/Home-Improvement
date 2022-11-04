@@ -178,7 +178,6 @@ public class PlayerScript : MonoBehaviour
                     uimanager.currentClosestFurnitureData =
                         furniture.GetComponent<FurnitureScript>().furnitureData;
                 }
-
                 makeFurnitureInteractble
                     .Invoke(furniture
                         .GetComponent<FurnitureScript>()
@@ -195,7 +194,6 @@ public class PlayerScript : MonoBehaviour
                 {
                     uimanager.currentClosestFurnitureData = null;
                 }
-
                 uimanager
                     .Manager
                     .SendMessageToFlutter("taskButtonStatus:" +

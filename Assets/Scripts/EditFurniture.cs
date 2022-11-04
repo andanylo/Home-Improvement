@@ -234,7 +234,7 @@ public class EditFurniture : MonoBehaviour
         foreach (GameObject room in rooms)
         {
             Bounds bounds = room.GetComponent<BoxCollider2D>().bounds;
-            Debug.Log(bounds);
+        
             if (
                 bounds.Contains(new Vector3(minX, minY, room.transform.position.z)) &&
                 bounds.Contains(new Vector3(minX, maxY, room.transform.position.z)) &&

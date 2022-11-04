@@ -176,6 +176,10 @@ public class TaskManager : MonoBehaviour
                 .didChangeCompleteStatus
                 .Invoke(playerTask.complete_Status);
         }
+        uimanager
+            .Manager
+            .SendMessageToFlutter("didCompleteTaskWithAward:" +
+            playerTask.award.ToString());
         SaveManager.saveOrUpdatePlayerTask(uimanager.Manager, playerTask, true);
     }
 
@@ -217,10 +221,6 @@ public class TaskManager : MonoBehaviour
         if (!string.IsNullOrWhiteSpace(taskJSON))
         {
             this.availableTasks = fetchTasks(taskJSON);
-            foreach (Task task in availableTasks)
-            {
-                Debug.Log($"{task.furnitureName} {task.CheckUpStatus}");
-            }
         }
     }
 

@@ -20,7 +20,9 @@ public class UIManager : MonoBehaviour
         set
         {
             this._currentClosestFurnitureData = value;
-            Manager.SendMessageToFlutter("currentClosestFurniture:" + (value == null ? "" : $"{value.name}"));
+            Manager
+                .SendMessageToFlutter("currentClosestFurniture:" +
+                (value == null ? "" : $"{value.name}"));
         }
     }
 
@@ -78,6 +80,8 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
+        //fetchFurniture();
+        //fetchRoom();
     }
 
     //Change editing status
@@ -211,6 +215,43 @@ public class UIManager : MonoBehaviour
                 editRoom.didTapOnRoom (tapped);
             }
         }
+    }
+
+    //Complete task
+    public void didCompleteTask()
+    {
+        if (currentClosestFurnitureData != null)
+        {
+            PlayerTask playerTask =
+                taskManager
+                    .getPlayerTaskFromFurniture(currentClosestFurnitureData);
+            if (playerTask != null)
+            {
+                taskManager.completePlayerTask (playerTask);
+            }
+        }
+    }
+
+    public void resetApp(string messaage)
+    {
+        changeEditingStatus("false");
+
+        foreach (GameObject furniture in furnitures)
+        {
+            Destroy (furniture);
+        }
+
+        foreach (GameObject room in rooms)
+        {
+            Destroy (room);
+        }
+
+        _currentClosestFurnitureData = null;
+
+        player.transform.position = new Vector3(0.0f, 0.0f, -1f);
+
+        rooms = new List<GameObject>();
+        furnitures = new List<GameObject>();
     }
 
     void Update()

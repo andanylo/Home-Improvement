@@ -13,7 +13,13 @@ public class FurnitureScript : MonoBehaviour
         this._furnitureData = value;
         transform.position = new Vector3(this._furnitureData.pos.x, this._furnitureData.pos.y, 0.0f);
     
-        transform.transform.eulerAngles = this._furnitureData.rot;
+        transform.eulerAngles = this._furnitureData.rot;
+
+        Bounds furnBounds =
+                    GetComponentInChildren<Renderer>().bounds;
+        exclamationMark.transform.position = new Vector3(transform.position.x + (furnBounds.size.x / 2) - 0.2f, transform.position.y + (furnBounds.size.y / 2) - 0.2f, -1f);
+        //Debug.Log(360f - this._furnitureData.rot.z);
+        exclamationMark.transform.eulerAngles = new Vector3(0f, 0f, 0f);
     }
     }
 

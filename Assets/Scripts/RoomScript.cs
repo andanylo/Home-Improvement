@@ -51,8 +51,7 @@ public class RoomScript : MonoBehaviour
             foreach(GameObject addButton in addButtons){
                 Direction oldDir = addButton.GetComponent<AddRoomButtonScript>().buttonDirection;
                 addButton.GetComponent<AddRoomButtonScript>().buttonDirection = DirectionManager.Instance.getNewDirectionFromDegrees((float) Math.Round(rotation, 0), standardButtonDirections[addButton]);
-                Debug.Log($"{roomData.id} {addButton.transform.position} {oldDir} {addButton.GetComponent<AddRoomButtonScript>().buttonDirection}");
-
+            
             }
     }
 
