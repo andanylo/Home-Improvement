@@ -131,6 +131,7 @@ public class TaskManager : MonoBehaviour
 
         DateTime result = getDelayedTime(task.CheckUpStatus);
 
+        playerTask.task_title = task.task_title;
         playerTask.DelayTime = result.ToString();
         playerTask.award = task.award;
         playerTask.checkUpStatus = task.CheckUpStatus;
@@ -285,20 +286,26 @@ public class TaskManager : MonoBehaviour
                     System.Globalization.CultureInfo.InvariantCulture);
             if (currentTime >= date)
             {
+                bool previousCompleteStatus = playerTask.complete_Status;
                 playerTask.complete_Status = false;
-                if (playerTask.didChangeCompleteStatus != null)
-                {
-                    //Notify listeners
-                    playerTask
-                        .didChangeCompleteStatus
-                        .Invoke(playerTask.complete_Status);
-                }
 
-                enableDisplayButton (playerTask);
-                SaveManager
-                    .saveOrUpdatePlayerTask(uimanager.Manager,
-                    playerTask,
-                    true);
+                if (previousCompleteStatus != playerTask.complete_Status)
+                {
+                    if (playerTask.didChangeCompleteStatus != null)
+                    {
+                        //Notify listeners
+                        playerTask
+                            .didChangeCompleteStatus
+                            .Invoke(playerTask.complete_Status);
+                    }
+
+                    enableDisplayButton (playerTask);
+
+                    SaveManager
+                        .saveOrUpdatePlayerTask(uimanager.Manager,
+                        playerTask,
+                        true);
+                }
             }
         }
     }
@@ -315,6 +322,8 @@ public class TaskManager : MonoBehaviour
 [Serializable]
 public class Task
 {
+    public string task_title = "";
+
     public string furnitureName;
 
     public string CheckUpStatus;
@@ -339,6 +348,8 @@ public class PlayerTask
 {
     public string furnitureID;
 
+    public string task_title;
+
     public string DelayTime;
 
     public int award;
@@ -353,6 +364,7 @@ public class PlayerTask
     {
         this.DelayTime = "";
         this.award = 0;
+        this.task_title = "";
 
         this.checkUpStatus = "Daily";
         this.complete_Status = false;
